@@ -1,0 +1,40 @@
+# render.yaml — publicación en Render con un clic (Blueprint). Ver README → "Publicar la web".
+services:
+  - type: web
+    name: nalv-estudio
+    runtime: node
+    plan: starter            # el plan gratis NO sirve: se duerme y no tiene disco persistente
+    buildCommand: npm install
+    startCommand: node server.js
+    healthCheckPath: /api/config
+    disk:
+      name: nalv-datos       # acá quedan pedidos, métricas, clientes, stickers y planchas (no se borra al actualizar)
+      mountPath: /var/data
+      sizeGB: 5
+    envVars:
+      - key: DATA_DIR
+        value: /var/data/nalv
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: PUBLIC_URL
+        sync: false          # tu dirección, ej. https://nalv.com.ar
+      - key: BANK_ALIAS
+        sync: false
+      - key: BANK_CVU
+        sync: false
+      - key: BANK_HOLDER
+        sync: false
+      - key: WHATSAPP_NUMBER
+        sync: false
+      - key: ORDER_EMAIL
+        sync: false
+      - key: STORE_NAME
+        value: nalv.estudio
+      - key: LOCAL_ADDRESS
+        value: calle 45 e/ 145 y 146
+      - key: LOCAL_CITY
+        value: La Plata
