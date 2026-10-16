@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Armá tu remera personalizada | nalv.estudio</title>
+<meta name="description" content="Elegí la prenda, el color y el talle, subí tu diseño y ubicalo a escala real sobre la prenda." />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+    <nav class="nav-links">
+      <a href="/">Stickers</a>
+      <a href="/remeras.html" class="active">Prendas</a>
+      <a href="#talles">Guía de talles</a>
+    </nav>
+    <button class="cart-btn" id="open-cart">Carrito <span class="cart-count" id="cart-count">0</span></button>
+  </div>
+</header>
+
+<section style="padding-bottom:20px;">
+  <div class="wrap">
+    <div class="section-head" style="margin-bottom:28px;">
+      <span class="eyebrow">Estampado a pedido · escala real</span>
+      <h2>Armá tu remera personalizada</h2>
+      <p>Elegí prenda, color y talle. La silueta está dibujada a la medida real de cada talle, así ves cuánto ocupa tu diseño en centímetros.</p>
+    </div>
+
+    <div class="designer">
+      <!-- ============ LIENZO ============ -->
+      <div class="designer-canvas">
+        <div class="side-tabs" id="side-tabs">
+          <button type="button" class="side-tab active" data-side="front">Frente</button>
+          <button type="button" class="side-tab" data-side="back" disabled>Espalda</button>
+        </div>
+        <span class="canvas-tag right" id="canvas-tag">—</span>
+
+        <div class="stage" id="stage">
+          <svg id="stage-svg" viewBox="-64 -30 128 129" xmlns="http://www.w3.org/2000/svg" aria-label="Prenda a escala real">
+            <defs>
+              <linearGradient id="cloth" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0" stop-color="#000" stop-opacity=".10"/><stop offset=".5" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#000" stop-opacity=".14"/>
+              </linearGradient>
+              <marker id="arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="2.2" markerHeight="2.2" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0 L6 3 L0 6 Z" fill="rgba(17,17,18,.75)"/></marker>
+            </defs>
+            <g id="grid-g"></g>
+            <g id="garment-g"></g>
+            <g id="dims-g"></g>
+            <rect id="print-guide" fill="none" stroke="#FF4D00" stroke-width=".35" stroke-dasharray="1.2 .9" opacity=".7" rx=".6"/>
+            <text id="guide-text" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="2" fill="#FF4D00"></text>
+            <image id="design-image" preserveAspectRatio="none" style="display:none;cursor:grab;"/>
+            <rect id="design-frame" fill="none" stroke="#FF4D00" stroke-width=".3" style="display:none;pointer-events:none;"/>
+            <circle id="design-handle" r="1.7" fill="#FF4D00" stroke="#fff" stroke-width=".5" style="display:none;cursor:nwse-resize;"/>
+          </svg>
+        </div>
+
+        <div class="design-readout" id="readout"></div>
+        <p class="stage-note">Cada cuadro = 10 cm · Arrastrá el diseño para moverlo y el punto naranja para agrandarlo.</p>
+      </div>
+
+      <!-- ============ PANEL ============ -->
+      <div class="designer-panel">
+        <label class="section-label">1 · Prenda <span class="current" id="garment-name"></span></label>
+        <div class="garment-grid" id="garment-grid"></div>
+        <p class="garment-material" id="garment-material"></p>
+
+        <label class="section-label">2 · Color <span class="current" id="color-name"></span></label>
+        <div class="swatches" id="swatches"></div>
+
+        <label class="section-label">3 · Talle <span class="current" id="size-name"></span></label>
+        <div class="size-scale">
+          <div class="size-scale-track" id="size-track"></div>
+          <input type="range" id="size-range" min="0" max="4" step="1" value="1" aria-label="Talle" />
+          <div class="size-meta"><span>ancho <b id="size-chest">—</b> cm</span><span>largo <b id="size-length">—</b> cm</span></div>
+        </div>
+
+        <label class="section-label">4 · Estampa</label>
+        <div class="print-options" id="print-options"></div>
+        <div class="tier-table" id="tier-table"></div>
+
+        <div id="design-section">
+          <label class="section-label">5 · Tu diseño <span class="current" id="design-side-name">adelante</span></label>
+          <label class="upload-zone" id="upload-zone" for="file-input" style="min-height:110px;">
+            <strong id="upload-title">📎 Subí tu diseño</strong>
+            <span>PNG, JPG, WEBP o SVG (máx. 10MB). Con fondo transparente queda mejor.</span>
+            <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+          </label>
+
+          <div id="design-actions" style="display:none; gap:8px; margin-top:8px; flex-wrap:wrap;">
+            <button type="button" class="mini-btn" id="btn-change">🔄 Cambiar imagen</button>
+            <button type="button" class="mini-btn" id="btn-remove-design" style="color:#C0392B; border-color:#C0392B;">🗑 Quitar diseño</button>
+          </div>
+
+          <div class="design-controls" id="design-controls" style="display:none;">
+            <div class="rec-box">
+              <div class="rec-title">Medidas recomendadas <span id="rec-side"></span></div>
+              <div class="rec-chips" id="rec-chips"></div>
+              <p class="rec-note" id="rec-note"></p>
+            </div>
+            <label class="check-row trim-row"><input type="checkbox" id="trim-on" checked /> <span><b>Ajustar el marco al dibujo</b> <small>(saca los márgenes vacíos para que la medida sea justa)</small></span></label>
+            <div class="slider-row"><span>ancho</span><input type="range" id="w-range" min="3" max="40" step="0.5" value="20" /><output id="w-out">20 cm</output></div>
+            <div class="mini-btns">
+              <button type="button" class="mini-btn" id="btn-center">Centrar</button>
+              <button type="button" class="mini-btn" id="btn-up">↑ 1 cm</button>
+              <button type="button" class="mini-btn" id="btn-down">↓ 1 cm</button>
+              <button type="button" class="mini-btn" id="btn-left">← 1 cm</button>
+              <button type="button" class="mini-btn" id="btn-right">→ 1 cm</button>
+            </div>
+
+            <div class="bg-card" id="bg-card">
+              <label class="switch-row"><input type="checkbox" id="bg-on" /> <span><b>Quitar el fondo</b> del logo</span></label>
+              <div id="bg-controls" style="display:none;">
+                <div class="slider-row"><span>tolerancia</span><input type="range" id="bg-tol" min="2" max="100" value="30" /><output id="bg-tol-out">30</output></div>
+                <div class="bg-row">
+                  <button type="button" class="mini-btn" id="bg-pick">🎯 Elegir color de fondo</button>
+                  <span class="key-swatch" id="bg-key" title="Color que se está quitando"></span>
+                  <label class="check-row"><input type="checkbox" id="bg-holes" /> incluir huecos (ej. dentro de la “O”)</label>
+                </div>
+              </div>
+              <p class="bg-note" id="bg-note"></p>
+            </div>
+          </div>
+        </div>
+
+        <label class="section-label">6 · Cantidad</label>
+        <div class="qty-row">
+          <div class="qty-stepper">
+            <button type="button" id="qty-minus">−</button>
+            <input type="number" id="qty-input" value="1" min="1" max="500" />
+            <button type="button" id="qty-plus">+</button>
+          </div>
+        </div>
+
+        <label class="section-label" for="label-input">Nombre del diseño (opcional)</label>
+        <input class="label-input" id="label-input" type="text" maxlength="60" placeholder="Ej: Logo pecho, Frase espalda…" />
+
+        <div class="price-box">
+          <div>
+            <div class="label" id="price-label">Precio total</div>
+            <div class="amount">$<span id="price">—</span></div>
+          </div>
+          <button class="btn btn-dark" id="add-to-cart" disabled>Agregar al carrito</button>
+        </div>
+        <p class="form-hint" id="add-hint"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="talles" style="padding-top:40px;">
+  <div class="wrap">
+    <div class="section-head"><h2>Guía de talles</h2><p>Medidas de la prenda extendida, en centímetros.</p></div>
+    <div class="chart-grid" id="chart-grid"></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div><img class="footer-logo" src="/img/nalv-logo.png" alt="NALV" /><br>Estampado hecho a pedido, prenda por prenda.</div>
+    <div>Pago por transferencia o efectivo.</div>
+  </div>
+</footer>
+
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head"><h3>Tu carrito</h3><button class="drawer-close" id="close-cart">✕</button></div>
+  <div class="drawer-body" id="cart-items"></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span>Total</span><span>$<span id="cart-total">0</span></span></div>
+    <a href="/checkout.html" class="btn btn-primary" style="width:100%;justify-content:center;" id="checkout-link">Ir a pagar</a>
+  </div>
+</aside>
+
+<script src="/js/cart.js"></script>
+<script src="/js/calidad.js"></script>
+<script src="/js/cart-ui.js"></script>
+<script src="/js/garments.js"></script>
+<script src="/js/bg-remove.js"></script>
+<script src="/js/remeras.js"></script>
+<script src="/js/ruler.js"></script>
+<script src="/js/account-nav.js"></script>
+<script src="/js/bot.js"></script>
+</body>
+</html>

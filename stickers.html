@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Galería de stickers | nalv.estudio</title>
+<meta name="description" content="Todos los stickers de nalv.estudio: mirá la galería completa, descargalos gratis o mandalos directo a tu plancha." />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+    <a href="/" class="btn btn-ghost" style="color:var(--ink); border-color:var(--line);">← Volver a la tienda</a>
+  </div>
+</header>
+
+<main class="wrap" style="padding-top:34px; padding-bottom:70px;">
+  <div class="section-head">
+    <h1 style="margin:0 0 8px;">Galería de stickers</h1>
+    <p>Acá están <b>todos</b> los stickers cargados. Tocá <b>Descargar</b> para bajarlos o <b>Usar en mi plancha</b> para mandarlos directo al armador.</p>
+  </div>
+  <div class="gal-add" style="margin:0 0 20px;"><button type="button" class="btn btn-primary" id="gal-add-btn">⬆ Sumá tu sticker</button></div>
+  <div class="gal-tools" id="gal-tools"><input type="search" id="gal-search" placeholder="Buscar un sticker…" aria-label="Buscar sticker" /><span id="gal-count"></span></div>
+  <div class="gal-cats" id="gal-cats" role="tablist" aria-label="Categorías"></div>
+  <div class="gal-grid" id="gal-grid"></div>
+  <p class="gal-empty" id="gal-empty" hidden>Todavía no hay stickers cargados.</p>
+  <div id="gal-sentinel" style="height:1px;"></div>
+  <p class="gal-note">¿Un diseño es tuyo y querés que lo saquemos? Escribinos y lo retiramos enseguida.</p>
+</main>
+
+<script src="/js/stickers-page.js"></script>
+<script src="/js/account-nav.js"></script>
+<script src="/js/bot.js"></script>
+</body>
+</html>

@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Panel de pedidos | nalv.estudio</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  body{ background: var(--bg); }
+  .admin-wrap{ max-width: 1180px; margin: 0 auto; padding: 40px 24px 80px; }
+  .login-card{ max-width: 360px; margin: 80px auto; background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding:28px; box-shadow: var(--shadow-card); }
+  .login-card input{ width:100%; padding:11px 12px; border:1px solid var(--line-strong); border-radius: var(--radius-sm); margin-bottom:12px; font-family: var(--body); }
+  .admin-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; }
+  table{ width:100%; border-collapse: collapse; background:#fff; border:1px solid var(--line); border-radius: var(--radius); overflow:hidden; }
+  th, td{ text-align:left; padding: 12px 14px; border-bottom:1px solid var(--line); font-size:.88rem; vertical-align:top; }
+  th{ font-family: var(--mono); font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color: var(--ink-soft); background: var(--bg); }
+  tr:last-child td{ border-bottom:none; }
+  .pay-select{ font-family: var(--mono); font-size:.78rem; padding:6px 8px; border-radius:8px; border:1px solid var(--line-strong); background:#fff; }
+  .status-select{ font-family: var(--mono); font-size:.78rem; padding:6px 8px; border-radius:8px; border:1px solid var(--line-strong); }
+  .thumbs{ display:flex; gap:6px; flex-wrap:wrap; }
+  .thumbs img{ width:44px; height:44px; object-fit:cover; border-radius:6px; border:1px solid var(--line); }
+  .order-code{ font-family: var(--mono); font-weight:700; }
+  .thumbs-big{ display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:12px; }
+  .gcell{ background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px; font-size:.75rem; text-align:center; }
+  .gcell img{ width:100%; height:100px; object-fit:contain; background:#eee; border-radius:6px; }
+  .pub-btn{ font-size:.7rem; border:1px solid var(--accent); color:var(--accent); background:#fff; border-radius:999px; padding:2px 8px; cursor:pointer; margin-top:3px; }
+  .thumb-wrap{ display:inline-flex; flex-direction:column; align-items:center; }
+  .toolbar{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .toolbar input, .toolbar select{ padding:9px 12px; border:1px solid var(--line-strong); border-radius:var(--radius-sm); font-family:var(--body); background:#fff; }
+  .toolbar input{ flex:1; min-width:180px; }
+  .ocard{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); margin-bottom:18px; overflow:hidden; }
+  .ohead{ display:flex; gap:14px; align-items:center; flex-wrap:wrap; padding:14px 18px; background:var(--bg); border-bottom:1px solid var(--line); }
+  .ohead .num{ font-family:var(--mono); font-weight:700; font-size:1.25rem; }
+  .ohead .grow{ flex:1; min-width:120px; color:var(--ink-soft); font-size:.8rem; }
+  .obody{ display:grid; grid-template-columns: 240px 1fr; gap:0; }
+  @media (max-width:760px){ .obody{ grid-template-columns:1fr; } }
+  .ocust{ padding:16px 18px; font-size:.85rem; border-right:1px solid var(--line); line-height:1.5; }
+  .oitems{ padding:14px 18px; }
+  .ogroup{ font-family:var(--mono); font-size:.7rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); margin:10px 0 8px; }
+  .ogroup:first-child{ margin-top:0; }
+  .tiles{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .dtile{ border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#fff; font-size:.76rem; display:flex; flex-direction:column; }
+  .dtile .pv{ height:150px; display:flex; align-items:center; justify-content:center; cursor:zoom-in; padding:8px;
+    background: repeating-conic-gradient(#ecebe5 0% 25%, #f7f6f1 0% 50%) 50% / 16px 16px; }
+  .dtile .pv img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .dtile .inf{ padding:7px 9px 4px; line-height:1.35; }
+  .dtile .links{ display:flex; gap:6px; flex-wrap:wrap; padding:0 9px 9px; margin-top:auto; }
+  .dtile .links a, .dtile .links button{ font-size:.68rem; border:1px solid var(--line-strong); background:#fff; border-radius:999px; padding:3px 8px; color:var(--ink); text-decoration:none; cursor:pointer; }
+  .dtile .links a:hover{ border-color:var(--ink); }
+  .q{ display:inline-block; font-family:var(--mono); font-size:.66rem; padding:1px 7px; border-radius:999px; }
+  .q.excelente,.q.buena,.q.vectorial{ background:#DDF3E4; color:#1E7B3A; } .q.media{ background:#FFF1CC; color:#8A6300; } .q.baja{ background:#FFE0DC; color:#B3261E; }
+  .lb{ position:fixed; inset:0; z-index:2000; background:rgba(15,15,15,.88); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; padding:16px; }
+  .lb .stage{ max-width:94vw; max-height:78vh; display:flex; padding:10px; border-radius:8px; }
+  .lb .stage img{ max-width:100%; max-height:76vh; object-fit:contain; image-rendering:auto; }
+  .lb .bar{ display:flex; gap:8px; flex-wrap:wrap; justify-content:center; color:#fff; font-size:.8rem; align-items:center; }
+  .lb .bar button, .lb .bar a{ background:#fff; color:#111; border:none; border-radius:999px; padding:7px 14px; font-weight:600; font-size:.8rem; text-decoration:none; cursor:pointer; }
+  .empty{ text-align:center; padding:60px 0; color: var(--ink-soft); }
+
+  .atabs{ display:flex; gap:6px; flex-wrap:wrap; margin:0 0 22px; border-bottom:1px solid var(--line); padding-bottom:0; }
+  .atabs button{ border:0; background:none; padding:11px 18px; font:inherit; font-weight:600; cursor:pointer; color:var(--ink-soft); border-bottom:3px solid transparent; margin-bottom:-1px; }
+  .atabs button.on{ color:var(--ink); border-bottom-color:var(--accent); }
+  .atabs .badge{ background:var(--accent); color:#fff; border-radius:999px; font-size:.68rem; padding:1px 7px; margin-left:6px; font-family:var(--mono); }
+  .kpis{ display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:12px; margin-bottom:22px; }
+  .kpi{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:14px 16px; }
+  .kpi small{ display:block; font-family:var(--mono); font-size:.68rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-soft); }
+  .kpi b{ display:block; font-size:1.5rem; margin-top:4px; font-family:var(--mono); }
+  .kpi.pos b{ color:#1E7B3A; } .kpi.neg b{ color:#B3261E; }
+  .panel{ background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:22px; }
+  .panel h2{ font-size:1.05rem; margin:0 0 12px; }
+  .chart{ display:flex; align-items:flex-end; gap:8px; height:190px; padding:10px 4px 0; overflow-x:auto; }
+  .chart .col{ flex:1; min-width:46px; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; height:100%; }
+  .chart .bars{ display:flex; gap:3px; align-items:flex-end; height:150px; width:100%; justify-content:center; }
+  .chart .bar{ width:42%; max-width:22px; border-radius:4px 4px 0 0; min-height:1px; } .chart .bar.b1{ background:var(--accent); } .chart .bar.b2{ background:#9A9A94; }
+  .chart .lab{ font-size:.68rem; color:var(--ink-soft); margin-top:6px; font-family:var(--mono); }
+  .legend{ font-size:.76rem; color:var(--ink-soft); margin-top:8px; } .legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin:0 5px 0 12px; vertical-align:middle; }
+  .num{ text-align:right; font-family:var(--mono); white-space:nowrap; }
+  .frm{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:12px; }
+  .frm input, .frm select, .frm textarea, .panel textarea, .panel input.t{ padding:9px 11px; border:1px solid var(--line-strong); border-radius:8px; font:inherit; background:#fff; }
+  .panel textarea{ width:100%; min-height:110px; }
+  .muted{ color:var(--ink-soft); font-size:.84rem; }
+  .pill{ display:inline-block; font-family:var(--mono); font-size:.68rem; padding:2px 8px; border-radius:999px; background:#EEE; } .pill.yes{ background:#DDF3E4; color:#1E7B3A; }
+  .tbl-wrap{ overflow-x:auto; }
+  .gcell .by{ color:var(--ink-soft); font-size:.7rem; }
+.armada { display:flex; gap:14px; flex-wrap:wrap; margin:8px 0 12px; } .armada figure { margin:0; background:#fff; border:1px solid var(--line); border-radius:10px; padding:8px; max-width:340px; } .armada img { display:block; max-width:100%; border-radius:6px; background:repeating-conic-gradient(#eee 0 25%, #fff 0 50%) 0 0/14px 14px; } .armada figcaption { font-size:.78rem; margin-top:6px; line-height:1.4; }
+.ostats{ display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; } .ostat{ border:1px solid var(--line-strong); background:#fff; border-radius:12px; padding:8px 14px; cursor:pointer; text-align:left; font-family:var(--body); min-width:120px; } .ostat b{ display:block; font-size:1.2rem; font-family:var(--mono); } .ostat span{ font-size:.74rem; color:var(--ink-soft); } .ostat.on{ border-color:var(--accent,#FF4D00); box-shadow:0 0 0 2px rgba(255,77,0,.18); } .ostat.warn b{ color:#C0392B; }
+.dlab{ font-size:.78rem; color:var(--ink-soft); display:flex; align-items:center; gap:6px; } .dlab input{ flex:none; min-width:0; }
+.ocard.nuevo{ border-color:#FF4D00; } .onote{ width:100%; margin-top:10px; padding:8px; border:1px solid var(--line-strong); border-radius:8px; font-family:var(--body); font-size:.82rem; resize:vertical; min-height:44px; } .ohist{ font-size:.72rem; color:var(--ink-soft); margin-top:8px; line-height:1.5; }
+.oprod{ background:#FFF4EC; border:1px solid #FFD2B8; border-radius:8px; padding:8px 12px; font-size:.86rem; margin-bottom:10px; }
+.olinks{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; } .olinks a{ font-size:.78rem; }
+</style>
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+    <span style="font-family:var(--mono); font-size:.85rem; color:var(--ink-soft);">panel de pedidos</span>
+  </div>
+</header>
+
+<div id="login-view" class="login-card" style="display:none;">
+  <h2 style="font-size:1.2rem;">Ingresar</h2>
+  <form id="login-form" autocomplete="off">
+    <input name="username" placeholder="Usuario (admin)" required autocomplete="off" autocapitalize="none" spellcheck="false" />
+    <input name="password" type="password" placeholder="Contraseña de administrador" required autocomplete="new-password" />
+    <button class="btn btn-primary" style="width:100%; justify-content:center;">Entrar</button>
+    <p id="login-error" style="color:#C0392B; font-size:.85rem; display:none; margin-top:10px;"></p>
+    <p class="muted" style="font-size:.75rem; margin-top:10px;">El usuario y la clave son los que pusiste en el archivo <code>.env</code> (<code>ADMIN_USER</code> y <code>ADMIN_PASSWORD</code>). Si no lo cambiaste: usuario <b>admin</b>.</p>
+  </form>
+</div>
+
+<div id="admin-view" class="admin-wrap" style="display:none;">
+  <div class="admin-head">
+    <h1 style="font-size:1.4rem; margin:0;">Panel</h1>
+    <button class="btn btn-ghost" id="logout-btn">Cerrar sesión</button>
+  </div>
+  <nav class="atabs" id="atabs">
+    <button type="button" data-tab="pedidos" class="on">Pedidos</button>
+    <button type="button" data-tab="metricas">Métricas y gastos</button>
+    <button type="button" data-tab="clientes">Clientes y promos</button>
+    <button type="button" data-tab="planchas">Planchas armadas</button>
+    <button type="button" data-tab="galeria">Stickers y galería <span class="badge" id="pend-badge" hidden>0</span></button>
+    <button type="button" data-tab="ajustes">Copia de seguridad</button>
+  </nav>
+
+  <div class="atab" data-tab="pedidos">
+  <div id="o-stats" class="ostats"></div>
+  <div class="toolbar">
+    <input id="f-search" placeholder="Buscar por número (NALV-0007), nombre, teléfono o mail…" />
+    <select id="f-status"><option value="">Todos los estados</option></select>
+    <label class="dlab">Desde <input type="date" id="f-from" /></label>
+    <label class="dlab">Hasta <input type="date" id="f-to" /></label>
+    <button type="button" class="btn btn-ghost" id="f-clear" style="padding:8px 12px; font-size:.82rem;">Limpiar</button>
+    <a class="btn btn-ghost" style="padding:8px 12px; font-size:.82rem;" href="/admin/api/excel" title="Excel con todos los pedidos, gastos y resumen por mes">⬇ Excel</a>
+  </div>
+  <p class="muted" id="o-saved" style="margin:-6px 0 14px; font-size:.8rem;"></p>
+  <div id="orders-container"></div>
+  <div style="text-align:center; margin:10px 0 30px;"><button type="button" class="btn btn-ghost" id="o-more" hidden>Mostrar más pedidos</button></div>
+  </div>
+
+  <div class="atab" data-tab="metricas" hidden>
+    <div class="panel" style="display:flex; gap:14px; align-items:center; flex-wrap:wrap;"><a class="btn btn-primary" href="/admin/api/excel" id="xl-btn">⬇ Descargar Excel (pedidos, gastos y facturación por mes)</a><span class="muted">Incluye cobrado por transferencia y en efectivo. En cada pedido elegí “Cobro: transferencia / efectivo” para que cuente.</span></div>
+    <div class="kpis" id="kpis"></div>
+    <div class="panel"><h2>Facturado vs gastos · últimos 12 meses</h2><div class="chart" id="chart"></div><div class="legend"><i style="background:var(--accent)"></i>Facturado (cobrado)<i style="background:#9A9A94"></i>Gastos</div></div>
+    <div class="panel"><h2>Mes a mes</h2><div class="tbl-wrap"><table id="mtable"></table></div>
+      <p class="muted" style="margin:10px 0 0;">“Facturado” = pedidos con pago confirmado (pagado, en producción, listo o entregado), envío incluido. “Ganancia” = facturado − gastos cargados abajo. Lo pendiente de pago no se suma hasta que lo marques como pagado.</p></div>
+    <div class="panel">
+      <h2>Gastos</h2>
+      <form class="frm" id="exp-form">
+        <input type="date" name="date" required />
+        <input name="concept" placeholder="¿En qué fue? (ej: vinilo, tinta, flete)" required maxlength="100" style="flex:1; min-width:200px;" />
+        <select name="category" id="exp-cat"></select>
+        <input name="amount" type="number" min="1" step="1" placeholder="Monto $" required style="width:130px;" />
+        <button class="btn btn-primary">Agregar gasto</button>
+        <span class="muted" id="exp-msg" style="color:#C0392B;"></span>
+      </form>
+      <div class="frm"><label class="muted">Ver mes:</label><select id="exp-month"></select><span class="muted" id="exp-total"></span></div>
+      <div class="tbl-wrap"><table id="exp-table"></table></div>
+    </div>
+  </div>
+
+  <div class="atab" data-tab="clientes" hidden>
+    <div class="kpis" id="ckpis"></div>
+    <div class="panel" id="mailcfg">
+      <h2>1 · Conectar tu mail <span class="pill" id="mc-state">sin conectar</span></h2>
+      <p class="muted" style="margin-top:-4px;">Así el sitio puede mandar las promos (y los avisos de pedidos y la recuperación de claves) desde tu casilla. Lo hacés una sola vez, sin tocar archivos.</p>
+      <div id="mc-ok" hidden class="frm"><span>✔ Conectado como <b id="mc-user"></b></span><button type="button" class="pub-btn" id="mc-change">Cambiar</button><button type="button" class="pub-btn" id="mc-off" style="border-color:#C0392B;color:#C0392B">Desconectar</button></div>
+      <form id="mc-form" class="frm" style="align-items:flex-start;">
+        <select id="mc-provider" name="provider"><option value="gmail">Gmail</option><option value="outlook">Outlook / Hotmail</option><option value="yahoo">Yahoo</option><option value="custom">Otro proveedor</option></select>
+        <input name="user" type="email" placeholder="Tu mail (ej: nalv.estudio@gmail.com)" required style="flex:1; min-width:220px;" autocomplete="off" />
+        <input name="pass" type="password" placeholder="Contraseña de aplicación" required style="flex:1; min-width:200px;" autocomplete="new-password" />
+        <span id="mc-custom" hidden class="frm" style="margin:0;"><input name="host" placeholder="Servidor SMTP (smtp.tuproveedor.com)" /><input name="port" type="number" placeholder="Puerto (465)" style="width:110px;" /></span>
+        <button class="btn btn-primary">Guardar y probar</button>
+        <span class="muted" id="mc-msg" style="width:100%;"></span>
+      </form>
+      <details style="margin-top:6px;"><summary class="muted" style="cursor:pointer;">¿Cómo consigo la contraseña de aplicación de Gmail?</summary>
+        <ol class="muted" style="line-height:1.7; margin:8px 0 0; padding-left:20px;">
+          <li>Entrá a tu cuenta de Google → <b>Seguridad</b> y activá la <b>verificación en 2 pasos</b> (si no la tenés).</li>
+          <li>Abrí <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noopener">myaccount.google.com/apppasswords</a>, ponele un nombre (ej: “nalv web”) y tocá <b>Crear</b>.</li>
+          <li>Google te muestra una clave de 16 letras: copiala y pegala arriba (con o sin espacios). <b>No uses tu contraseña normal.</b></li>
+        </ol>
+      </details>
+    </div>
+    <div class="panel">
+      <h2>2 · Mandar una promo por mail</h2>
+      <p class="muted" style="margin-top:-4px;">Se envía <b>solo a quienes tildaron que quieren recibir ofertas</b> y tengan mail. Cada mail lleva un link para darse de baja (obligatorio). Usá <code>{nombre}</code> para poner el nombre.</p>
+      <div class="frm"><input class="t" id="pm-subject" placeholder="Asunto (ej: 15% en tu próxima plancha)" maxlength="150" style="flex:1; min-width:240px;" /></div>
+      <textarea id="pm-body" placeholder="Hola {nombre}! Esta semana…"></textarea>
+      <div class="frm" style="margin-top:10px;">
+        <button type="button" class="btn btn-ghost" id="pm-test" style="color:var(--ink); border-color:var(--line-strong);">Enviarme una prueba</button>
+        <button type="button" class="btn btn-primary" id="pm-send">Enviar a los que aceptaron</button>
+        <span class="muted" id="pm-msg"></span>
+      </div>
+      <p class="muted" id="pm-warn" hidden style="color:#9A6A00;">⚠ Todavía no conectaste tu mail: completá el paso 1 de arriba para poder enviar.</p>
+      <p class="muted" id="pm-hist"></p>
+    </div>
+    <div class="panel">
+      <h2>3 · Mandar una promo por WhatsApp</h2>
+      <p class="muted" style="margin-top:-4px;">WhatsApp no permite el envío masivo automático: acá armás el mensaje y tocás “WhatsApp” en cada cliente (se abre el chat con el texto ya escrito). Solo aparecen quienes aceptaron recibir promos.</p>
+      <textarea id="wa-text" style="min-height:80px;">Hola {nombre}! Te escribe NALV estudio 👋 Esta semana tenemos una promo para vos: </textarea>
+      <div class="frm" style="margin-top:10px;"><button type="button" class="btn btn-primary" id="wa-next">▶ Abrir el siguiente</button><button type="button" class="btn btn-ghost" id="wa-reset" style="color:var(--ink); border-color:var(--line-strong);">Empezar de nuevo</button><span class="muted" id="wa-progress"></span></div>
+    </div>
+    <div class="panel">
+      <h2>Clientes</h2>
+      <div class="frm">
+        <input class="t" id="c-search" type="search" placeholder="Buscar nombre, mail o teléfono…" style="flex:1; min-width:200px;" />
+        <label class="muted"><input type="checkbox" id="c-only" checked /> Solo los que aceptan promos</label>
+        <a class="btn btn-ghost" id="c-csv1" href="/admin/api/customers.csv?consent=1" style="color:var(--ink); border-color:var(--line-strong);">CSV (aceptan promos)</a>
+        <a class="btn btn-ghost" id="c-csv0" href="/admin/api/customers.csv" style="color:var(--ink); border-color:var(--line-strong);">CSV (todos)</a>
+      </div>
+      <div class="tbl-wrap"><table id="c-table"></table></div>
+      <p class="muted" style="margin-top:10px;">¿Un cliente con cuenta perdió la clave y no tenés mail configurado? <button type="button" class="pub-btn" id="reset-pw">Generar clave temporal</button></p>
+    </div>
+  </div>
+
+  <div class="atab" data-tab="ajustes" hidden>
+    <div class="panel">
+      <h2>Tus datos guardados</h2>
+      <div class="kpis" id="st-kpis"></div>
+      <p class="muted" id="st-where"></p>
+      <div id="st-warn" class="muted" hidden style="background:#FFF4DC; border:1px solid #F0D79A; border-radius:10px; padding:12px 14px; color:#6B4E00;"></div>
+    </div>
+    <div class="panel">
+      <h2>Revisar la galería de stickers</h2>
+      <p class="muted" style="margin-top:-4px;">Si en la web alguna miniatura no se ve, tocá acá: revisa todos los stickers, <b>rehace las miniaturas dañadas</b> y te dice si a alguno le falta el archivo. (Esto también corre solo cada vez que se enciende el sitio.)</p>
+      <div class="frm"><button type="button" class="btn btn-primary" id="gh-btn">Revisar y reparar</button><button type="button" class="btn btn-ghost" id="gh-rm" hidden style="color:var(--ink); border-color:var(--line-strong);">Quitar los que no tienen archivo</button></div>
+      <p class="muted" id="gh-msg" style="margin-top:8px;"></p>
+    </div>
+    <div class="panel">
+      <h2>Copia de seguridad</h2>
+      <p class="muted" style="margin-top:-4px;">Un solo archivo .zip con <b>todo</b>: pedidos, clientes, cuentas, gastos, stickers cargados (y pendientes) y los archivos de los pedidos. <b>Descargala antes de cada actualización de la web</b> y cada tanto. Si algo se pierde, la restaurás acá en un paso.</p>
+      <div class="frm"><a class="btn btn-primary" href="/admin/api/backup.zip" id="bk-dl">⬇ Descargar copia de seguridad</a></div>
+      <p class="muted" style="margin:14px 0 6px;"><b>Restaurar</b> desde una copia: reemplaza los datos actuales por los de la copia (antes se guarda un respaldo del estado actual). Tu mail conectado y las sesiones no se tocan.</p>
+      <div class="frm"><button type="button" class="btn btn-ghost" id="rs-btn" style="color:var(--ink); border-color:var(--line-strong);">Restaurar desde un .zip…</button><input type="file" id="rs-file" accept=".zip,application/zip" hidden /><span class="muted" id="rs-msg"></span></div>
+    </div>
+  </div>
+
+  <div class="atab" data-tab="planchas" hidden>
+    <div class="panel">
+      <h2>⚡ Armar planchas automáticas</h2>
+      <p class="muted" style="margin-top:-4px;">Elegí una categoría de la galería y el sitio arma solo planchas de <b>58 × 50 cm a 300 dpi</b> (listas para imprimir), con la cantidad de stickers que quieras por plancha, y las publica a la venta. Después podés editar el nombre y el precio de cada una abajo. El archivo para imprimir queda guardado y aparece en el pedido.</p>
+      <div class="frm" style="gap:10px;">
+        <select id="au-cat" style="padding:8px; border:1px solid var(--line-strong); border-radius:8px; min-width:210px;"></select>
+        <label style="font-size:.82rem;">Stickers por plancha <input id="au-per" type="number" min="4" max="60" value="20" style="padding:6px; width:70px; border:1px solid var(--line-strong); border-radius:8px;" /></label>
+        <label style="font-size:.82rem;">Precio $ <input id="au-price" type="number" min="1" value="18000" style="padding:6px; width:100px; border:1px solid var(--line-strong); border-radius:8px;" /></label>
+        <label style="font-size:.82rem;">Máx. planchas <input id="au-max" type="number" min="1" max="60" value="12" style="padding:6px; width:70px; border:1px solid var(--line-strong); border-radius:8px;" /></label>
+        <label style="font-size:.82rem;"><input type="checkbox" id="au-new" checked /> Solo stickers que todavía no están en una plancha</label>
+        <button type="button" class="btn btn-primary" id="au-go">Armar planchas</button>
+      </div>
+      <p class="muted" id="au-msg" style="margin-top:8px;"></p>
+    </div>
+    <div class="panel">
+      <h2>Planchas armadas a la venta</h2>
+      <p class="muted" style="margin-top:-4px;">Cargá una plancha ya armada (la imagen completa), cuántos stickers trae y su precio. Aparece en la home para que el cliente la agregue al carrito. Cuando te la piden, en el pedido te queda el botón “Imprimir” con tu archivo original.</p>
+      <form id="pk-form" style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
+        <input type="file" name="image" accept="image/*" required />
+        <input name="title" placeholder="Nombre (ej. Plancha Mates)" maxlength="70" required style="padding:8px; border:1px solid var(--line-strong); border-radius:8px; min-width:200px;" />
+        <input name="stickers" id="pk-n" type="number" min="1" max="1000" placeholder="Cant. de stickers" required style="padding:8px; width:150px; border:1px solid var(--line-strong); border-radius:8px;" />
+        <input name="price" id="pk-price" type="number" min="1" placeholder="Precio $" required style="padding:8px; width:130px; border:1px solid var(--line-strong); border-radius:8px;" />
+        <label style="font-size:.8rem;" title="Se usa para sugerirte el precio según la cantidad de stickers">Precio por sticker $ <input id="pk-rate" type="number" min="1" value="400" style="padding:6px; width:80px; border:1px solid var(--line-strong); border-radius:8px;" /></label>
+        <label style="font-size:.8rem;"><input type="checkbox" name="rights" value="1" required /> Es mío o tengo derecho a venderlo</label>
+        <button class="btn btn-primary">Cargar plancha</button>
+        <span id="pk-msg" style="font-size:.8rem; color:#C0392B;"></span>
+      </form>
+      <p class="muted" style="font-size:.78rem; margin:8px 0 0;">Al escribir la cantidad de stickers, el precio se completa solo (cantidad × precio por sticker); podés cambiarlo. Vender diseños de marcas, clubes o personajes sin licencia puede traerte reclamos.</p>
+    </div>
+    <div id="pk-grid" class="thumbs-big" style="grid-template-columns:repeat(auto-fill,minmax(230px,1fr));"></div>
+  </div>
+
+  <div class="atab" data-tab="galeria" hidden>
+  <div id="ib-box" style="background:#fff; border:1px solid var(--line-strong,#ddd); border-radius:12px; padding:14px 16px; margin-bottom:14px;">
+    <h3 style="margin:0 0 4px;">📂 Carpeta automática de stickers</h3>
+    <p class="muted" style="margin:0 0 8px; font-size:.9rem;">Copiá imágenes, carpetas o .zip dentro de esta carpeta de tu computadora y <b>se suben solos a la web</b> (revisa cada 15 segundos). Si ponés <b>subcarpetas</b>, cada una es una categoría (ej: <code>Boca</code>, <code>Mates</code>). Lo que ya se subió pasa a la subcarpeta <code>_cargados</code>. Al ponerlos ahí confirmás que tenés derecho a publicarlos.</p>
+    <div class="muted" style="font-size:.85rem; margin-bottom:8px;">Carpeta: <code id="ib-dir">…</code></div>
+    <div class="frm" style="margin-bottom:8px;"><input id="ib-extra" placeholder="Otra carpeta, ej: C:\Users\Alvar\Desktop\Mis stickers" style="flex:1; min-width:260px; padding:8px; border:1px solid var(--line-strong); border-radius:8px;" /> <button type="button" class="btn btn-ghost" id="ib-save" style="color:var(--ink); border-color:var(--line-strong);">Usar esta carpeta</button></div>
+    <div class="frm"><button type="button" class="btn btn-primary" id="ib-open">Abrir la carpeta</button> <button type="button" class="btn btn-ghost" id="ib-now" style="color:var(--ink); border-color:var(--line-strong);">Subir ahora lo que haya</button> <span id="ib-msg" class="muted" style="font-size:.9rem;"></span></div>
+  </div>
+  <div id="pl-box" hidden style="background:#fff; border:1px solid var(--line-strong,#ddd); border-radius:12px; padding:14px 16px; margin-bottom:14px;">
+    <h3 style="margin:0 0 4px;">🎁 Stickers argentinos incluidos (≈ 270)</h3>
+    <p class="muted" style="margin:0 0 10px; font-size:.9rem;">Memes con jerga argentina, frases y dibujos de cosas nuestras (mate, asado, choripán, empanada, alfajor, colectivo, Obelisco, camiseta albiceleste, Sol de Mayo, mapa…), hechos por nalv.estudio, ya separados en categorías. Se agregan solos la primera vez que abrís el sitio; este botón los vuelve a cargar si hace falta. Quedan en la galería para que tus clientes los vean y los sumen a su plancha. Si ya los cargaste, no se duplican. Después podés armar planchas de 58 × 50 solas desde la pestaña “Planchas armadas”.</p>
+    <div class="frm"><button type="button" class="btn btn-primary" id="pl-btn">Cargar stickers argentinos</button> <span id="pl-msg" class="muted" style="font-size:.9rem;"></span></div>
+  </div>
+  <div id="falt-banner" hidden style="background:#FFF4DC; border:1px solid #F0D79A; border-radius:10px; padding:12px 14px; color:#6B4E00; margin-bottom:14px;">
+    <b id="falt-t"></b>
+    <div class="muted" style="color:#6B4E00; margin:4px 0 8px;">Tus datos (nombres, precios, categorías, pedidos) están a salvo: lo que falta son los <u>archivos de las imágenes</u> en <code id="falt-dir"></code>. Probablemente quedaron en la carpeta de una versión anterior del sitio. No se borra ni se mueve nada: solo se copian.<br><b>Si no los encuentra en tu compu:</b> volvé a subir tu .zip o tu carpeta de stickers (más abajo, “Subir un .zip” o “Elegir carpeta”). Los que ya están cargados <u>recuperan su imagen</u> y conservan nombre y categoría; no se duplican.</div>
+    <button type="button" class="btn btn-primary" id="falt-btn">🔎 Buscar mis archivos en esta computadora</button> <span id="falt-msg" class="muted" style="color:#6B4E00;"></span>
+  </div>
+  
+  <div class="panel" id="pend-panel" hidden>
+    <h2>Stickers sugeridos por la gente <span class="muted">· esperando tu aprobación</span></h2>
+    <p class="muted" style="margin-top:-4px;">Los suben desde el bot o desde la galería, y aceptaron que se publiquen. No se muestra nada en la web hasta que lo aprobás. Mirá que no tengan marcas, personajes ajenos, fotos de personas ni nada ofensivo.</p>
+    <div class="frm"><button type="button" class="btn btn-primary" id="pend-all">Aprobar todos</button></div>
+    <div id="pend-grid" class="thumbs-big"></div>
+  </div>
+  <div class="admin-head" style="margin-top:8px;">
+    <h1 style="font-size:1.4rem; margin:0;">Galería de stickers para descargar</h1>
+  </div>
+  <p style="color:var(--ink-soft); font-size:.88rem; margin-top:-12px;">Lo que está acá se ve en la web, en la página <a href="/stickers.html" target="_blank">Galería de stickers</a>, con botón de descarga. Los diseños de clientes solo se pueden publicar si ellos marcaron el permiso (aparece “✔ Permitió publicar” en el pedido) y siempre los aprobás vos.</p>
+  <form id="gal-form" style="background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:16px; display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-bottom:16px;">
+    <input type="file" name="image" accept="image/*" multiple required />
+    <input name="title" placeholder="Nombre (solo si es uno)" maxlength="60" style="padding:8px; border:1px solid var(--line-strong); border-radius:8px;" />
+    <label style="font-size:.8rem;"><input type="checkbox" name="rights" value="1" required /> Es mío o tengo derecho a compartirlo</label>
+    <label style="font-size:.8rem;"><input type="checkbox" name="featured" value="1" /> ⭐ Recomendado</label>
+    <button class="btn btn-primary">Subir</button>
+    <span id="gal-msg" style="font-size:.8rem; color:#C0392B;"></span>
+  </form>
+
+  <div id="bulk" style="background:#fff; border:1px solid var(--line); border-radius:var(--radius); padding:16px; margin-bottom:16px;">
+    <strong>Subir muchos juntos</strong> <span style="color:var(--ink-soft); font-size:.84rem;">— o arrastrá acá tus archivos, carpetas o .zip</span>
+    <p style="color:var(--ink-soft); font-size:.84rem; margin:6px 0 12px;">Elegí <b>varios archivos</b> (Ctrl+A dentro de la carpeta), <b>una carpeta entera</b> o <b>un .zip</b>. Se suben de a 10, se les pone de nombre el del archivo (después podés renombrarlos) y los repetidos se saltean solos. Si se corta, volvé a subir lo mismo: no se duplica.</p>
+    <label style="font-size:.84rem; display:block; margin-bottom:6px;"><input type="checkbox" id="bulk-rights" /> Todos son míos o tengo derecho a compartirlos</label>
+    <label style="font-size:.84rem; display:block; margin-bottom:6px;"><input type="checkbox" id="bulk-cats" checked /> 📂 Si hay <b>subcarpetas</b> (en la carpeta o en el .zip), usar el nombre de cada una como <b>categoría</b></label>
+    <label style="font-size:.84rem; display:block; margin-bottom:12px;"><input type="checkbox" id="bulk-featured" /> ⭐ Marcarlos como recomendados (aparecen arriba de todo en la web)</label>
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button type="button" class="btn btn-primary" id="bulk-files-btn">Elegir archivos</button>
+      <button type="button" class="btn btn-ghost" id="bulk-folder-btn">Elegir carpeta</button>
+      <button type="button" class="btn btn-ghost" id="bulk-zip-btn">Subir un .zip</button>
+    </div>
+    <input type="file" id="bulk-files" accept="image/*" multiple hidden />
+    <input type="file" id="bulk-folder" webkitdirectory multiple hidden />
+    <input type="file" id="bulk-zip" accept=".zip,application/zip" hidden />
+    <div id="bulk-bar" style="display:none; margin-top:14px; height:8px; background:var(--line); border-radius:99px; overflow:hidden;"><div id="bulk-fill" style="height:100%; width:0; background:var(--accent); transition:width .2s;"></div></div>
+    <div id="bulk-msg" style="margin-top:8px; font-size:.84rem;"></div>
+  </div>
+  <div class="frm"><input id="gal-search" type="search" placeholder="Buscar en la galería…" style="padding:8px 12px; border:1px solid var(--line-strong); border-radius:8px; width:min(320px,100%);" />
+    <label class="muted"><input type="checkbox" id="gal-feat-only" /> Solo ⭐ recomendados</label><span class="muted" id="gal-count-admin"></span></div>
+  <div class="frm" style="margin-top:10px;">
+    <select id="gal-cat-filter" style="padding:8px; border:1px solid var(--line-strong); border-radius:8px;"><option value="">Todas las categorías</option></select>
+    <button type="button" class="btn btn-ghost" id="gal-org" style="color:var(--ink); border-color:var(--line-strong);" title="Corrige nombres raros y vuelve a clasificar los que no cambiaste a mano">🗂 Ordenar por categorías</button>
+    <span class="muted" id="gal-org-msg"></span>
+  </div>
+  <div class="frm" id="gal-bulk" style="background:#fff; border:1px solid var(--line); border-radius:10px; padding:10px 12px; margin-top:8px;">
+    <label class="muted"><input type="checkbox" id="gal-sel-all" /> Seleccionar todos los que se ven</label>
+    <b id="gal-sel-n" class="muted">0 seleccionados</b>
+    <select id="gal-bulk-cat" style="padding:8px; border:1px solid var(--line-strong); border-radius:8px;"></select>
+    <button type="button" class="btn btn-primary" id="gal-bulk-go" disabled>Mover a esa categoría</button>
+  </div>
+  <div id="gal-admin" class="thumbs-big"></div>
+  </div>
+</div>
+
+<script>
+const STATUS_LABELS = {
+  pendiente_pago: 'Pendiente de pago',
+  pagado: 'Pagado',
+  en_produccion: 'En producción',
+  listo: 'Listo',
+  entregado: 'Entregado',
+  cancelado: 'Cancelado',
+};
+
+async function checkSession() {
+  const { isAdmin } = await fetch('/admin/api/session').then((r) => r.json());
+  document.getElementById('login-view').style.display = isAdmin ? 'none' : 'block';
+  document.getElementById('admin-view').style.display = isAdmin ? 'block' : 'none';
+  if (isAdmin) { loadOrders(); loadGallery(); if (window.AdminExtra) AdminExtra.init(); }
+}
+
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const fd = new FormData(e.target);
+  const res = await fetch('/admin/api/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: fd.get('username'), password: fd.get('password') }),
+  });
+  if (res.ok) {
+    checkSession();
+  } else {
+    const err = document.getElementById('login-error');
+    err.textContent = 'Usuario o contraseña incorrectos';
+    err.style.display = 'block';
+  }
+});
+
+document.getElementById('logout-btn').addEventListener('click', async () => {
+  await fetch('/admin/api/logout', { method: 'POST' });
+  checkSession();
+});
+
+let ALL_ORDERS = [];
+const esc = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+const money = (n) => '$' + Number(n || 0).toLocaleString('es-AR');
+const fsel = document.getElementById('f-status');
+Object.entries(STATUS_LABELS).forEach(([v, l]) => fsel.insertAdjacentHTML('beforeend', `<option value="${v}">${l}</option>`));
+document.getElementById('f-search').addEventListener('input', renderOrders);
+fsel.addEventListener('change', renderOrders);
+
+async function loadOrders() {
+  ALL_ORDERS = await fetch('/admin/api/orders').then((r) => r.json());
+  if (!Array.isArray(ALL_ORDERS)) { ALL_ORDERS = []; return; }
+  loadSavedInfo();
+  renderOrders();
+}
+
+let SHOWN = 20;
+const dayOf = (iso) => { const d = new Date(iso); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+['f-from', 'f-to'].forEach((id) => document.getElementById(id).addEventListener('change', () => { SHOWN = 20; renderOrders(); }));
+document.getElementById('f-search').addEventListener('input', () => { SHOWN = 20; });
+fsel.addEventListener('change', () => { SHOWN = 20; });
+document.getElementById('f-clear').addEventListener('click', () => { ['f-search', 'f-from', 'f-to'].forEach((i) => { document.getElementById(i).value = ''; }); fsel.value = ''; SHOWN = 20; renderOrders(); });
+document.getElementById('o-more').addEventListener('click', () => { SHOWN += 20; renderOrders(); });
+
+function renderStats() {
+  const box = document.getElementById('o-stats');
+  if (!ALL_ORDERS.length) { box.innerHTML = ''; return; }
+  const by = {}; ALL_ORDERS.forEach((o) => { const x = by[o.status] || (by[o.status] = { n: 0, t: 0 }); x.n++; x.t += Number(o.total) || 0; });
+  const total = ALL_ORDERS.filter((o) => o.status !== 'cancelado').reduce((a, o) => a + (Number(o.total) || 0), 0);
+  box.innerHTML = `<button type="button" class="ostat ${fsel.value === '' ? 'on' : ''}" data-st=""><b>${ALL_ORDERS.length}</b><span>Todos · ${money(total)} sin cancelados</span></button>` +
+    Object.entries(STATUS_LABELS).map(([k, l]) => { const x = by[k] || { n: 0, t: 0 }; return `<button type="button" class="ostat ${fsel.value === k ? 'on' : ''} ${k === 'pendiente_pago' && x.n ? 'warn' : ''}" data-st="${k}"><b>${x.n}</b><span>${l}${x.n ? ' · ' + money(x.t) : ''}</span></button>`; }).join('');
+  box.querySelectorAll('.ostat').forEach((b) => b.addEventListener('click', () => { fsel.value = b.dataset.st; SHOWN = 20; renderOrders(); }));
+  const pend = (by.pendiente_pago || { n: 0 }).n, tab = document.querySelector('#atabs [data-tab="pedidos"]');
+  if (tab) tab.innerHTML = 'Pedidos' + (pend ? ` <span class="badge">${pend}</span>` : '');
+}
+function loadSavedInfo() { fetch('/admin/api/pedidos/info').then((r) => r.json()).then((i) => {
+  if (!i || !i.dir) return;
+  const el = document.getElementById('o-saved');
+  el.innerHTML = `💾 Cada pedido queda guardado en la base y además en una carpeta aparte con su resumen y todos sus diseños: <code>${esc(i.dir)}</code>${i.local ? ' · <a href="#" id="o-open">abrir carpeta</a>' : ''} · Los pedidos no se pueden borrar desde el panel. Copia completa: pestaña “Copia de seguridad”.`;
+  const a = document.getElementById('o-open'); if (a) a.addEventListener('click', (e) => { e.preventDefault(); fetch('/admin/api/pedidos/abrir', { method: 'POST' }); });
+}).catch(() => {}); }
+
+// avisa de pedidos nuevos sin tener que recargar (cada minuto, sin pisar lo que estés escribiendo)
+const orderSig = (l) => l.map((o) => o.id + ':' + o.status + ':' + (o.admin_note || '').length).join('|');
+setInterval(async () => {
+  if (document.hidden || !document.getElementById('admin-view') || document.getElementById('admin-view').style.display === 'none') return;
+  if (document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('onote')) return;
+  try {
+    const r = await fetch('/admin/api/orders'); if (!r.ok) return;
+    const l = await r.json();
+    if (orderSig(l) !== orderSig(ALL_ORDERS)) { ALL_ORDERS = l; renderOrders(); }
+  } catch (e) { /* sin conexión: reintenta en un minuto */ }
+}, 60000);
+
+function renderOrders() {
+  const q = document.getElementById('f-search').value.trim().toLowerCase(), st = fsel.value;
+  const from = document.getElementById('f-from').value, to = document.getElementById('f-to').value;
+  renderStats();
+  const list = ALL_ORDERS.filter((o) => (!st || o.status === st) &&
+    (!from || dayOf(o.created_at) >= from) && (!to || dayOf(o.created_at) <= to) &&
+    (!q || [o.order_code, o.customer_name, o.customer_phone, o.customer_email].join(' ').toLowerCase().includes(q)));
+  const container = document.getElementById('orders-container'), more = document.getElementById('o-more');
+  more.hidden = true;
+  if (!ALL_ORDERS.length) { container.innerHTML = '<div class="empty">Todavía no hay pedidos. Cuando entre uno, vas a ver acá el diseño que armó el cliente y los archivos para imprimir.</div>'; return; }
+  if (!list.length) { container.innerHTML = '<div class="empty">No hay pedidos con ese filtro.</div>'; return; }
+  const shown = list.slice(0, SHOWN);
+  if (list.length > shown.length) { more.hidden = false; more.textContent = `Mostrar más pedidos (${shown.length} de ${list.length})`; }
+  container.innerHTML = shown.map(orderCard).join('');
+  container.querySelectorAll('.onote').forEach((ta) => {
+    ta.addEventListener('change', async () => {
+      const r = await fetch(`/admin/api/orders/${ta.dataset.id}/nota`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ note: ta.value }) });
+      if (!r.ok) { alert('No se pudo guardar la nota.'); return; }
+      const o = ALL_ORDERS.find((x) => x.id === Number(ta.dataset.id)); if (o) o.admin_note = ta.value;
+      ta.style.borderColor = '#1E7B3A'; setTimeout(() => { ta.style.borderColor = ''; }, 1200);
+    });
+  });
+  container.querySelectorAll('.pay-select').forEach((sel) => {
+    sel.addEventListener('change', async () => {
+      const r = await fetch(`/admin/api/orders/${sel.dataset.id}/payment`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ method: sel.value }) });
+      if (!r.ok) { alert('No se pudo guardar la forma de cobro.'); return; }
+      const o = ALL_ORDERS.find((x) => x.id === Number(sel.dataset.id)); if (o) o.payment_method = sel.value || null;
+    });
+  });
+  container.querySelectorAll('.status-select').forEach((sel) => {
+    sel.addEventListener('change', async () => {
+      const r = await fetch(`/admin/api/orders/${sel.dataset.id}/status`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: sel.value }) });
+      if (!r.ok) { alert('No se pudo cambiar el estado. Probá de nuevo.'); loadOrders(); return; }
+      const j = await r.json().catch(() => ({}));
+      const o = ALL_ORDERS.find((x) => x.id === Number(sel.dataset.id)); if (o) { o.status = sel.value; if (j.history) o.history = j.history; }
+      renderOrders();
+    });
+  });
+}
+
+// Una "ficha" por archivo: miniatura nítida + calidad + descargas (original y listo para imprimir)
+function tile({ thumb, print, orig, meta, title, sub, bgColor, order, canPublish, dtf }) {
+  const t = thumb || print, ext = orig ? orig.split('.').pop() : '';
+  const q = meta ? `<span class="q ${meta.quality}" title="Resolución real de la imagen a la medida impresa">${meta.quality}${meta.dpi ? ' · ' + meta.dpi + ' dpi' : ''}</span>` : '';
+  const up = meta && meta.upscaled ? '<br><span style="color:var(--ink-soft);">agrandada a ~300 dpi</span>' : '';
+  return `<div class="dtile">
+    <div class="pv" data-lb="${esc(print)}" data-bg="${esc(bgColor || '')}" data-dl="${esc(title)}" data-orig="${esc(orig || '')}" ${bgColor ? `style="background:${esc(bgColor)};"` : ''} title="Ver en grande"><img src="${esc(t)}" alt="" loading="lazy" /></div>
+    <div class="inf"><strong>${esc(title)}</strong><br>${sub}<br>${q}${up}</div>
+    <div class="links">
+      <a href="${esc(print)}" download="${esc(title.replace(/[^\w\-]+/g, '_'))}_IMPRIMIR.png" title="PNG listo para imprimir">⬇ Imprimir</a>
+      ${orig ? `<a href="${esc(orig)}" download title="Archivo tal cual lo subió el cliente">⬇ Original</a>` : ''}
+      ${dtf ? `<button type="button" class="pub-btn dtf-btn" data-print="${esc(print)}" data-name="${esc(title.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w\-]+/g, '_'))}" title="PNG transparente a la medida exacta, 300 dpi, nítido con IA: listo para DTF">✨ Archivo DTF (IA)</button><span class="dtf-msg" style="flex-basis:100%; font-size:.72rem; color:var(--ink-soft);"></span>` : ''}
+      ${canPublish ? `<button type="button" class="pub-btn" data-order="${order.id}" data-img="${esc(print)}">Publicar</button>` : ''}
+    </div></div>`;
+}
+
+function orderCard(o) {
+  const date = new Date(o.created_at).toLocaleString('es-AR');
+  const singles = (o.items || []).map((it) => tile({ thumb: it.image_thumb, print: it.image_path, orig: it.image_orig, meta: it.image_meta, title: it.label || 'Sticker', sub: `${it.size_cm} cm · x${it.qty}`, order: o, canPublish: o.share_gallery }));
+  const sheets = (o.sheets || []).map((sh, i) => `<div class="ogroup">Plancha ${i + 1} · ${sh.width_cm}×${sh.length_cm} cm${(sh.planchas || 1) > 1 ? ' · ' + sh.planchas + ' planchas' : ''} · ${money(sh.price)}</div>
+    <div class="armada">${Array.from({ length: Math.max(1, sh.planchas || 1) }, (_, p) => `<figure><a href="/admin/api/orders/${o.id}/plancha/${i}/${p}.png?dpi=110" target="_blank" title="Ver en grande"><img loading="lazy" src="/admin/api/orders/${o.id}/plancha/${i}/${p}.png?dpi=28" alt="Plancha armada" /></a><figcaption><b>Así la armó el cliente</b>${(sh.planchas || 1) > 1 ? ' · plancha ' + (p + 1) + ' de ' + sh.planchas : ''}<br><a href="/admin/api/orders/${o.id}/plancha/${i}/${p}.png?dpi=300&descargar=1">⬇ Plancha completa para imprimir (${sh.width_cm}×${sh.length_cm} cm · 300 dpi)</a></figcaption></figure>`).join('')}</div>
+    <div class="ogroup" style="margin-top:6px; text-transform:none; letter-spacing:0;">Diseños sueltos de esta plancha (para descargar por separado)</div>
+    <div class="tiles">${sh.items.map((it) => tile({ thumb: it.image_thumb, print: it.image_path, orig: it.image_orig, meta: it.image_meta, title: it.label || 'Diseño', sub: `${it.size_cm} × ${it.h_cm || it.size_cm} cm · x${it.qty}`, order: o, canPublish: o.share_gallery })).join('')}</div>`).join('');
+  const shirts = (o.shirts || []).map((sh) => {
+    const pl = (side) => (sh.placements && sh.placements[side] ? `${sh.placements[side].wCm} × ${sh.placements[side].hCm} cm · a ${sh.placements[side].fromNeck} cm del cuello · ${Math.round(sh.placements[side].cx * 10) / 10} cm del centro` : '');
+    const head = `<div class="ogroup" style="color:var(--ink);"><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${esc(sh.color_hex)};border:1px solid var(--line-strong);vertical-align:middle;"></span> ${esc(sh.garment_label)} · ${esc(sh.color_label)} · talle ${esc(sh.size)} · x${sh.qty} · ${money(sh.line_total)}${sh.label ? ' · ' + esc(sh.label) : ''}</div>`;
+    const tiles = [
+      sh.front_image ? tile({ thumb: sh.front_thumb, print: sh.front_image, orig: sh.front_orig, meta: sh.front_meta, title: `${sh.garment_label} ${sh.color_label} ${sh.size} FRENTE`, sub: pl('front'), bgColor: sh.color_hex, dtf: true }) : '',
+      sh.back_image ? tile({ thumb: sh.back_thumb, print: sh.back_image, orig: sh.back_orig, meta: sh.back_meta, title: `${sh.garment_label} ${sh.color_label} ${sh.size} ESPALDA`, sub: pl('back'), bgColor: sh.color_hex, dtf: true }) : '',
+    ].join('');
+    const si = (o.shirts || []).indexOf(sh);
+    const mock = `<div class="armada">${['front', 'back'].filter((sd) => (sd === 'front' ? sh.front_image : sh.back_image)).map((sd) => `<figure><a href="/admin/api/orders/${o.id}/prenda/${si}/${sd}.png" target="_blank" title="Ver en grande"><img loading="lazy" src="/admin/api/orders/${o.id}/prenda/${si}/${sd}.png" alt="Maqueta" style="max-height:260px;" /></a><figcaption><b>Así la ubicó el cliente · ${sd === 'front' ? 'frente' : 'espalda'}</b><br><a href="/admin/api/orders/${o.id}/prenda/${si}/${sd}.png?descargar=1">⬇ Maqueta</a></figcaption></figure>`).join('')}</div>`;
+    return head + mock + `<div class="ogroup" style="margin-top:6px; text-transform:none; letter-spacing:0;">Estampas sueltas (para descargar por separado)</div><div class="tiles">${tiles}</div>`;
+  }).join('');
+
+  const packs = (o.packs || []).length ? `<div class="ogroup">Planchas armadas (a la venta)</div><div class="tiles">${o.packs.map((k) => `<div class="dtile"><div class="pv"><img src="${esc(k.thumb || '')}" alt="" loading="lazy" /></div><div class="inf"><strong>${esc(k.title)}</strong><br>${k.stickers} stickers · x${k.qty}<br>${money(k.line_total)}</div><div class="links"><a href="/admin/api/packs/${esc(k.pack_key)}/archivo" download title="Archivo original de la plancha, para imprimir">⬇ Imprimir</a></div></div>`).join('')}</div>` : '';
+
+  const METHOD_LABELS = { retiro: 'Retiro en local', correo_domicilio: 'Correo Argentino · a domicilio', correo_sucursal: 'Correo Argentino · a sucursal', envio: 'Envío a domicilio' };
+  const isShip = o.delivery_method && o.delivery_method !== 'retiro';
+  const delivery = !isShip ? '<strong>Retiro en local</strong>' : `<strong>${METHOD_LABELS[o.delivery_method] || 'Envío'}</strong><br>
+    DNI ${esc(o.dni || '—')}<br>${o.delivery_method === 'correo_sucursal' ? 'Sucursal: ' + esc(o.branch || '—') : esc(o.address || '—')}<br>${esc(o.city || '')}${o.province ? ', ' + esc(o.province) : ''} · CP ${esc(o.postal_code || '—')}<br>
+    <span style="color:var(--ink-soft); font-size:.78rem;">Envío cobrado ${money(o.shipping_cost)} · ≈ ${o.shipping_weight_kg || '—'} kg</span>`;
+  const ph = String(o.customer_phone || '').replace(/\D/g, '').replace(/^0+/, '').replace(/^(54)?9?/, '');
+  const wa = ph.length >= 8 ? `https://wa.me/549${ph}?text=${encodeURIComponent('Hola ' + (o.customer_name || '').split(' ')[0] + ', te escribo por tu pedido ' + o.order_code + ' de nalv.estudio.')}` : '';
+  const nSing = (o.items || []).reduce((a, i) => a + (Number(i.qty) || 0), 0), nPl = (o.sheets || []).reduce((a, sh) => a + (sh.planchas || 1), 0), nStk = (o.sheets || []).reduce((a, sh) => a + (sh.items || []).reduce((b, i) => b + (Number(i.qty) || 0), 0), 0), nPrenda = (o.shirts || []).reduce((a, sh) => a + (Number(sh.qty) || 0), 0), nPk = (o.packs || []).reduce((a, k) => a + (Number(k.qty) || 0), 0);
+  const prod = [nSing ? `<b>${nSing}</b> sticker${nSing > 1 ? 's' : ''} suelto${nSing > 1 ? 's' : ''}` : '', nPl ? `<b>${nPl}</b> plancha${nPl > 1 ? 's' : ''} 58×50 (${nStk} stickers)` : '', nPk ? `<b>${nPk}</b> plancha${nPk > 1 ? 's' : ''} armada${nPk > 1 ? 's' : ''} de la tienda` : '', nPrenda ? `<b>${nPrenda}</b> prenda${nPrenda > 1 ? 's' : ''} a estampar` : ''].filter(Boolean).join(' · ');
+  const hasFiles = (o.items || []).some((i) => i.image_path) || (o.sheets || []).length || (o.shirts || []).length;
+  return `<article class="ocard ${o.status === 'pendiente_pago' ? 'nuevo' : ''}">
+    <div class="ohead">
+      <span class="num">${esc(o.order_code)}</span>
+      <span class="grow">${date}</span>
+      <strong class="mono">${money(o.total)}</strong>
+      <select class="status-select" data-id="${o.id}">${Object.entries(STATUS_LABELS).map(([val, label]) => `<option value="${val}" ${o.status === val ? 'selected' : ''}>${label}</option>`).join('')}</select>
+      <select class="pay-select" data-id="${o.id}" title="¿Cómo pagó?"><option value="">Cobro: sin definir</option><option value="transferencia" ${o.payment_method === 'transferencia' ? 'selected' : ''}>Cobro: transferencia</option><option value="efectivo" ${o.payment_method === 'efectivo' ? 'selected' : ''}>Cobro: efectivo</option></select>
+      ${hasFiles ? `<a class="btn btn-dark" style="padding:8px 14px; font-size:.8rem;" href="/admin/api/orders/${o.id}/zip" title="Incluye: la plancha armada completa 58×50 cm 300 dpi, la maqueta de cada prenda y cada diseño por separado (listo para imprimir + original)">⬇ Todo el pedido (.zip)</a>` : ''}
+    </div>
+    <div class="obody">
+      <div class="ocust">
+        <strong>${esc(o.customer_name)}</strong><br>${esc(o.customer_phone)}${o.customer_email ? '<br>' + esc(o.customer_email) : ''}
+        <hr style="border:none; border-top:1px dashed var(--line); margin:10px 0;">
+        ${delivery}
+        ${o.notes ? `<hr style="border:none; border-top:1px dashed var(--line); margin:10px 0;"><span style="color:var(--ink-soft);">📝 ${esc(o.notes)}</span>` : ''}
+        ${o.share_gallery ? '<div style="color:#1E7B3A; font-size:.78rem; margin-top:10px;">✔ Permitió publicar sus diseños de stickers en la galería</div>' : ''}
+        <div class="olinks">${wa ? `<a href="${wa}" target="_blank" rel="noopener">💬 WhatsApp</a>` : ''}${o.customer_email ? `<a href="mailto:${esc(o.customer_email)}?subject=${encodeURIComponent('Tu pedido ' + o.order_code)}">✉ Mail</a>` : ''}</div>
+        <textarea class="onote" data-id="${o.id}" placeholder="Nota interna (solo la ves vos): ej. «seña recibida», «falta confirmar color»…">${esc(o.admin_note || '')}</textarea>
+        ${(o.history || []).length ? `<div class="ohist">${o.history.map((h) => esc(STATUS_LABELS[h.status] || h.status) + ' · ' + new Date(h.at).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })).join(' → ')}</div>` : ''}
+      </div>
+      <div class="oitems">
+        <div class="oprod">📋 Para producir: ${prod || '—'}</div>
+        ${singles.length ? `<div class="ogroup">Stickers sueltos</div><div class="tiles">${singles.join('')}</div>` : ''}
+        ${sheets}${packs}${shirts}
+      </div>
+    </div>
+  </article>`;
+}
+
+// Visor grande: archivo "listo para imprimir" sobre fondo a elegir (para ver bien bordes y transparencias)
+document.addEventListener('click', (e) => {
+  const pv = e.target.closest('.pv[data-lb]');
+  if (!pv) return;
+  const ov = document.createElement('div');
+  ov.className = 'lb';
+  const bgs = [['Cuadriculado', ''], ['Blanco', '#fff'], ['Negro', '#111']];
+  if (pv.dataset.bg) bgs.push(['Color de la prenda', pv.dataset.bg]);
+  ov.innerHTML = `<div class="stage"><img src="${esc(pv.dataset.lb)}" alt="" /></div>
+    <div class="bar">${bgs.map(([n, c]) => `<button type="button" data-c="${esc(c)}">${n}</button>`).join('')}
+      <a href="${esc(pv.dataset.lb)}" download="${esc(pv.dataset.dl.replace(/[^\w\-]+/g, '_'))}_IMPRIMIR.png">⬇ Imprimir</a>
+      ${pv.dataset.orig ? `<a href="${esc(pv.dataset.orig)}" download>⬇ Original</a>` : ''}
+      <button type="button" data-close="1">Cerrar ✕</button></div>`;
+  const stage = ov.querySelector('.stage');
+  const setBg = (c) => { stage.style.background = c || 'repeating-conic-gradient(#ecebe5 0% 25%, #f7f6f1 0% 50%) 50% / 16px 16px'; };
+  setBg(pv.dataset.bg || '');
+  ov.addEventListener('click', (ev) => {
+    if (ev.target.dataset && 'c' in ev.target.dataset) return setBg(ev.target.dataset.c);
+    if (ev.target === ov || (ev.target.dataset && ev.target.dataset.close)) ov.remove();
+  });
+  document.addEventListener('keydown', function k(ev) { if (ev.key === 'Escape') { ov.remove(); document.removeEventListener('keydown', k); } });
+  document.body.appendChild(ov);
+});
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('.pub-btn[data-order]');
+  if (b) {
+    const title = prompt('Nombre para este sticker en la galería (revisá antes que no tenga marcas/personajes ajenos ni datos personales):', 'Sticker');
+    if (!title) return;
+    b.disabled = true;
+    const r = await fetch('/admin/api/galeria/desde-pedido', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ orderId: b.dataset.order, imagePath: b.dataset.img, title }) });
+    if (r.ok) { b.textContent = '✓ Publicado'; loadGallery(); } else { b.disabled = false; alert((await r.json()).error || 'Error'); }
+    return;
+  }
+  const ft = e.target.closest('.gal-feat');
+  if (ft) {
+    await fetch('/admin/api/galeria/' + ft.dataset.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ featured: ft.dataset.on !== '1' }) });
+    loadGallery(); return;
+  }
+  const rn = e.target.closest('.gal-ren');
+  if (rn) {
+    const cur = (galList.find((g) => String(g.id) === rn.dataset.id) || {}).title || '';
+    const t = prompt('Nuevo nombre del sticker:', cur);
+    if (t && t.trim()) {
+      const r = await fetch('/admin/api/galeria/' + rn.dataset.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ title: t }) });
+      if (r.ok) loadGallery(); else alert('No se pudo renombrar.');
+    }
+    return;
+  }
+  const d = e.target.closest('.gal-del');
+  if (d && confirm('¿Sacar este sticker de la galería?')) {
+    await fetch('/admin/api/galeria/' + d.dataset.id, { method: 'DELETE' });
+    loadGallery();
+  }
+});
+
+let galList = [];
+// ---- Archivo DTF con IA: pide el archivo, muestra el progreso y lo descarga solo cuando está listo ----
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('.dtf-btn'); if (!b || b.disabled) return;
+  const msg = b.parentElement.querySelector('.dtf-msg');
+  const label = b.textContent; b.disabled = true;
+  const finish = (r) => {
+    const i = r.info || {};
+    msg.textContent = `Listo: ${i.width}×${i.height} px · ${i.dpi} dpi${i.method && i.method !== 'ninguna' ? ' · mejorado con ' + i.method : ' · sin necesidad de agrandar'}`;
+    b.textContent = '⬇ Descargar DTF'; b.disabled = false; b.dataset.url = r.url;
+    const a = document.createElement('a'); a.href = r.url; a.download = `${b.dataset.name}_DTF_${i.wCm || ''}cm_${i.dpi || 300}dpi.png`; document.body.appendChild(a); a.click(); a.remove();
+  };
+  if (b.dataset.url) { b.dataset.url = ''; b.disabled = false; }
+  try {
+    let r = await (await fetch('/admin/api/dtf', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ print: b.dataset.print }) })).json();
+    while (r.state === 'queued' || r.state === 'working') {
+      b.textContent = r.state === 'queued' ? '⏳ En cola…' : `✨ Mejorando… ${r.pct || 0}%`;
+      msg.textContent = 'La IA está trabajando en tu servidor; puede tardar un minuto según el tamaño. No cierres el panel.';
+      await new Promise((ok) => setTimeout(ok, 1500));
+      r = await (await fetch('/admin/api/dtf?print=' + encodeURIComponent(b.dataset.print))).json();
+    }
+    if (r.state === 'ready') finish(r);
+    else { msg.textContent = 'No se pudo: ' + (r.error || 'error desconocido') + ' Usá “⬇ Imprimir” como alternativa.'; b.textContent = label; b.disabled = false; }
+  } catch (err) { msg.textContent = 'Se cortó la conexión. Probá de nuevo.'; b.textContent = label; b.disabled = false; }
+});
+
+const galSel = new Set();
+let galCats = [];
+const galCatOpts = (cur) => {
+  const names = galCats.map((c) => c.name); if (cur && !names.includes(cur)) names.push(cur);
+  return names.map((n) => { const c = galCats.find((x) => x.name === n); return `<option value="${String(n).replace(/"/g, '&quot;')}" ${n === (cur || 'Variados') ? 'selected' : ''}>${c ? c.emoji : '🏷️'} ${String(n).replace(/</g, '&lt;')}</option>`; }).join('') + '<option value="__new">➕ Otra categoría…</option>';
+};
+async function loadGalCats() {
+  galCats = await fetch('/admin/api/galeria/categorias').then((r) => r.json()).catch(() => []);
+  const f = document.getElementById('gal-cat-filter'), cur = f.value;
+  f.innerHTML = '<option value="">Todas las categorías</option>' + galCats.map((c) => `<option value="${c.name.replace(/"/g, '&quot;')}">${c.emoji} ${c.name} (${c.count})</option>`).join(''); f.value = cur;
+  document.getElementById('gal-bulk-cat').innerHTML = galCats.map((c) => `<option value="${c.name.replace(/"/g, '&quot;')}">${c.emoji} ${c.name}</option>`).join('') + '<option value="__new">➕ Otra categoría…</option>';
+}
+async function loadGallery() {
+  await loadGalCats();
+  galList = await fetch('/admin/api/galeria').then((r) => r.json()).catch(() => []);
+  renderGallery();
+}
+function renderGallery() {
+  const q = (document.getElementById('gal-search').value || '').toLowerCase().trim();
+  const fo = document.getElementById('gal-feat-only').checked;
+  const cf = document.getElementById('gal-cat-filter').value;
+  const list = galList.filter((g) => (!q || (String(g.title) + ' ' + String(g.category || '')).toLowerCase().includes(q)) && (!fo || g.featured) && (!cf || (g.category || 'Variados') === cf));
+  window._galView = list;
+  document.getElementById('gal-count-admin').textContent = `${galList.length} stickers · ${galList.filter((g) => g.featured).length} recomendados`;
+  const esc = (t) => String(t == null ? '' : t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  document.getElementById('gal-admin').innerHTML = list.length ? list.map((g) => `
+    <div class="gcell"><label style="display:flex; gap:6px; align-items:center; font-size:.75rem;"><input type="checkbox" class="gal-sel" data-id="${g.id}" ${galSel.has(g.id) ? 'checked' : ''} /> Elegir</label><img src="${esc(g.url)}" alt="" loading="lazy" /><div><strong>${esc(g.title)}</strong>${g.featured ? ' ⭐' : ''}</div>
+    <select class="gal-cat" data-id="${g.id}" style="width:100%; padding:4px; font-size:.75rem; border:1px solid var(--line-strong); border-radius:6px;">${galCatOpts(g.category)}</select>
+    <div style="color:var(--ink-soft);">${g.source === 'cliente' ? 'cliente · ' + esc(g.order_code || '') : g.source === 'comunidad' ? 'comunidad' : 'propio'}</div>
+    <button type="button" class="pub-btn gal-feat" data-id="${g.id}" data-on="${g.featured ? 1 : 0}">${g.featured ? 'Quitar ⭐' : '⭐ Recomendar'}</button>
+    <button type="button" class="pub-btn gal-ren" data-id="${g.id}">Renombrar</button>
+    <button type="button" class="pub-btn gal-del" data-id="${g.id}" style="border-color:#C0392B; color:#C0392B;">Sacar</button></div>`).join('') : '<div class="empty" style="grid-column:1/-1; padding:20px 0;">Todavía no hay stickers en la galería (la sección no se muestra en la web hasta que cargues el primero).</div>';
+}
+
+function askCat(v) { if (v !== '__new') return v; const n = (prompt('Nombre de la nueva categoría (ej. Anime, Autos, Boca…):') || '').trim(); return n || null; }
+function updSel() { document.getElementById('gal-sel-n').textContent = galSel.size + ' seleccionados'; document.getElementById('gal-bulk-go').disabled = !galSel.size; }
+document.getElementById('gal-cat-filter').addEventListener('change', renderGallery);
+document.getElementById('gal-admin').addEventListener('change', async (e) => {
+  const sc = e.target.closest('.gal-cat'), ck = e.target.closest('.gal-sel');
+  if (ck) { const id = Number(ck.dataset.id); ck.checked ? galSel.add(id) : galSel.delete(id); updSel(); return; }
+  if (!sc) return;
+  const c = askCat(sc.value); if (!c) { loadGallery(); return; }
+  const r = await fetch('/admin/api/galeria/' + sc.dataset.id, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ category: c }) });
+  if (!r.ok) alert('No se pudo cambiar la categoría.');
+  loadGallery();
+});
+document.getElementById('gal-sel-all').addEventListener('change', (e) => { (window._galView || []).forEach((g) => (e.target.checked ? galSel.add(g.id) : galSel.delete(g.id))); renderGallery(); updSel(); });
+document.getElementById('gal-bulk-go').addEventListener('click', async () => {
+  const c = askCat(document.getElementById('gal-bulk-cat').value); if (!c || !galSel.size) return;
+  const r = await fetch('/admin/api/galeria/categoria', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ids: [...galSel], category: c }) });
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { alert(j.error || 'No se pudo mover.'); return; }
+  galSel.clear(); document.getElementById('gal-sel-all').checked = false; updSel(); await loadGallery();
+});
+document.getElementById('gal-org').addEventListener('click', async () => {
+  const m = document.getElementById('gal-org-msg'); m.textContent = 'Ordenando…';
+  const r = await fetch('/admin/api/galeria/ordenar', { method: 'POST' }); const j = await r.json().catch(() => ({}));
+  m.textContent = r.ok ? `✔ ${j.categorized} clasificados · ${j.renamed} nombres corregidos` : 'No se pudo ordenar.'; loadGallery();
+});
+document.getElementById('gal-form').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('gal-msg'); msg.textContent = '';
+  const form = e.target, files = Array.from(form.image.files);
+  if (!files.length) { msg.textContent = 'Elegí al menos una imagen.'; return; }
+  if (files.length > 1 || /\.zip$/i.test(files[0].name)) { // varios a la vez: pasan por la carga masiva
+    document.getElementById('bulk-rights').checked = true;
+    document.getElementById('bulk-featured').checked = !!form.featured.checked;
+    form.reset(); window.nalvBulk(files); return;
+  }
+  const fd = new FormData(form); if (!fd.get('title')) fd.set('title', files[0].name.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').slice(0, 60));
+  const r = await fetch('/admin/api/galeria', { method: 'POST', body: fd });
+  if (r.ok) { form.reset(); loadGallery(); } else { const j = await r.json().catch(() => ({})); msg.textContent = j.error || ('Error ' + r.status + ': no se pudo subir.'); }
+});
+
+// ---------- Carga masiva ----------
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const msg = $('bulk-msg'), bar = $('bulk-bar'), fill = $('bulk-fill');
+  let busy = false;
+  const tot = { added: 0, duplicates: 0, skipped: [] };
+  function needRights() { if (!$('bulk-rights').checked) { msg.style.color = '#C0392B'; msg.textContent = 'Primero tildá que los stickers son tuyos o que tenés derecho a compartirlos.'; return true; } return false; }
+  function setBusy(v) { busy = v; ['bulk-files-btn', 'bulk-folder-btn', 'bulk-zip-btn'].forEach((id) => { $(id).disabled = v; }); }
+  function summary(done) {
+    const sk = tot.skipped;
+    msg.style.color = sk.length ? '#9A6A00' : '#1E7B3A';
+    msg.innerHTML = (done ? '✔ Listo. ' : '') + `<b>${tot.added}</b> subidos` + (tot.duplicates ? `, ${tot.duplicates} repetidos (salteados)` : '') + (sk.length ? `, ${sk.length} no se pudieron subir` : '') + '.'
+      + (sk.length ? '<details style="margin-top:6px;"><summary>Ver cuáles</summary>' + sk.slice(0, 50).map((x) => `<div>${x.name.replace(/</g, '&lt;')} — ${x.reason}</div>`).join('') + (sk.length > 50 ? `<div>…y ${sk.length - 50} más</div>` : '') + '</details>' : '');
+  }
+  async function sendBatch(files) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const fd = new FormData(); fd.append('rights', '1'); if ($('bulk-featured').checked) fd.append('featured', '1');
+        files.forEach((f) => fd.append('images', f, f.name));
+        fd.append('cats', JSON.stringify(files.map((f) => f._cat || '')));
+        const r = await fetch('/admin/api/galeria/lote', { method: 'POST', body: fd });
+        if (r.status === 401) throw new Error('Se cerró la sesión: volvé a entrar al panel y repetí (lo ya subido no se duplica).');
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.error || 'Error del servidor');
+        return j;
+      } catch (e) { if (attempt === 2 || /sesión/.test(e.message)) throw e; await new Promise((ok) => setTimeout(ok, 800)); }
+    }
+  }
+  async function uploadMany(fileList) {
+    if (busy || needRights()) return;
+    const all = Array.from(fileList).filter((f) => !f.name.startsWith('.'));
+    const imgs = all.filter((f) => /\.(png|jpe?g|webp|gif|tiff?|avif|heic)$/i.test(f.name)).sort((a, b) => b.name.localeCompare(a.name, 'es', { numeric: true })); // de la Z a la A: la galería muestra lo último agregado primero
+    const other = all.length - imgs.length;
+    // subcarpetas → categoría (se ignora la carpeta raíz común)
+    if ($('bulk-cats').checked) {
+      const dirs = imgs.map((f) => (f.webkitRelativePath || '').split('/').slice(0, -1));
+      let common = 0; while (dirs.length && dirs.every((d) => d.length > common && d[common] === dirs[0][common])) common++;
+      imgs.forEach((f, k) => { const d = dirs[k]; f._cat = d.length > common ? d[common] : ''; });
+    }
+    if (!imgs.length) { msg.style.color = '#C0392B'; msg.textContent = 'No encontré imágenes PNG, JPG o WEBP' + (other ? ` (había ${other} archivos de otro tipo; si es un .zip usá “Subir un .zip”).` : '.'); return; }
+    tot.added = 0; tot.duplicates = 0; tot.skipped = other ? [{ name: `${other} archivo(s)`, reason: 'no son PNG/JPG/WEBP' }] : [];
+    setBusy(true); bar.style.display = ''; fill.style.width = '0';
+    try {
+      // tandas de hasta 10 archivos o ~40 MB (lo que llegue primero), para no trabar el servidor con archivos pesados
+      let i = 0;
+      while (i < imgs.length) {
+        const chunk = []; let bytes = 0;
+        while (i < imgs.length && chunk.length < 10 && (chunk.length === 0 || bytes + imgs[i].size <= 40 * 1048576)) { chunk.push(imgs[i]); bytes += imgs[i].size; i++; }
+        const big = chunk.filter((f) => f.size > 80 * 1048576);
+        big.forEach((f) => tot.skipped.push({ name: f.name, reason: 'pesa más de 80 MB' }));
+        const ok = chunk.filter((f) => f.size <= 80 * 1048576);
+        if (ok.length) { const j = await sendBatch(ok); tot.added += j.added; tot.duplicates += j.duplicates; tot.skipped.push(...j.skipped); }
+        fill.style.width = Math.round(i / imgs.length * 100) + '%';
+        msg.style.color = 'var(--ink-soft)'; msg.textContent = `Subiendo… ${i} de ${imgs.length}`;
+      }
+      summary(true);
+    } catch (e) { summary(false); msg.innerHTML += `<div style="color:#C0392B; margin-top:6px;">⚠ Se frenó: ${e.message}</div>`; }
+    setBusy(false); loadGallery();
+  }
+  async function uploadZip(file) {
+    if (busy || needRights() || !file) return;
+    setBusy(true); bar.style.display = ''; fill.style.width = '100%'; fill.style.opacity = '.5';
+    msg.style.color = 'var(--ink-soft)'; msg.textContent = `Subiendo y procesando ${file.name} (${(file.size / 1048576).toFixed(0)} MB)… puede tardar un par de minutos, no cierres la página.`;
+    try {
+      const fd = new FormData(); fd.append('rights', '1'); if ($('bulk-featured').checked) fd.append('featured', '1'); fd.append('usecats', $('bulk-cats').checked ? '1' : '0'); fd.append('zip', file);
+      const r = await fetch('/admin/api/galeria/zip', { method: 'POST', body: fd });
+      const j = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(j.error || (r.status === 413 ? 'El .zip es demasiado grande para el servidor: probá “Elegir carpeta”.' : 'Error del servidor'));
+      tot.added = j.added; tot.duplicates = j.duplicates; tot.skipped = j.skipped || [];
+      summary(true);
+    } catch (e) { msg.style.color = '#C0392B'; msg.textContent = '⚠ ' + e.message; }
+    fill.style.opacity = ''; setBusy(false); loadGallery();
+  }
+  // varios archivos (y .zip) a la vez, desde el formulario de arriba o arrastrando
+  window.nalvBulk = (list) => {
+    const arr = Array.from(list), zips = arr.filter((f) => /\.zip$/i.test(f.name)), rest = arr.filter((f) => !/\.zip$/i.test(f.name));
+    (async () => { if (rest.length) await uploadMany(rest); for (const z of zips) await uploadZip(z); })();
+  };
+  try { $('bulk-rights').checked = localStorage.getItem('nalv_bulk_rights') === '1'; } catch (e) { /* sin almacenamiento */ }
+  $('bulk-rights').addEventListener('change', () => { try { localStorage.setItem('nalv_bulk_rights', $('bulk-rights').checked ? '1' : '0'); } catch (e) { /* nada */ } });
+  const panel = $('bulk'), formEl = $('gal-form');
+  if (panel && formEl && formEl.parentNode) formEl.parentNode.insertBefore(panel, formEl); // el panel de carga masiva va primero
+  const readEntry = (en, rel) => new Promise((res) => {
+    if (en.isFile) en.file((f) => { try { Object.defineProperty(f, 'webkitRelativePath', { value: rel + f.name }); } catch (e) { /* sin categoría */ } res([f]); }, () => res([]));
+    else if (en.isDirectory) {
+      const rd = en.createReader(), all = [];
+      (function next() { rd.readEntries(async (ents) => { if (!ents.length) { const out = []; for (const x of all) out.push(...await readEntry(x, rel + en.name + '/')); res(out); } else { all.push(...ents); next(); } }, () => res([])); })();
+    } else res([]);
+  });
+  ['dragenter', 'dragover'].forEach((ev) => [panel, formEl].forEach((el) => el.addEventListener(ev, (e) => { e.preventDefault(); el.style.outline = '2px dashed var(--orange,#FF4D00)'; })));
+  ['dragleave', 'drop'].forEach((ev) => [panel, formEl].forEach((el) => el.addEventListener(ev, (e) => { e.preventDefault(); el.style.outline = ''; })));
+  [panel, formEl].forEach((el) => el.addEventListener('drop', async (e) => {
+    const items = Array.from((e.dataTransfer && e.dataTransfer.items) || []);
+    let files = [];
+    if (items.length && items[0].webkitGetAsEntry) { for (const it of items) { const en = it.webkitGetAsEntry && it.webkitGetAsEntry(); if (en) files.push(...await readEntry(en, '')); } }
+    else files = Array.from(e.dataTransfer.files || []);
+    if (files.length) { if (el === formEl) { $('bulk-rights').checked = $('bulk-rights').checked || !!formEl.rights.checked; } window.nalvBulk(files); }
+  }));
+  $('bulk-files-btn').onclick = () => $('bulk-files').click();
+  $('bulk-folder-btn').onclick = () => $('bulk-folder').click();
+  $('bulk-zip-btn').onclick = () => $('bulk-zip').click();
+  $('bulk-files').onchange = (e) => { uploadMany(e.target.files); e.target.value = ''; };
+  $('bulk-folder').onchange = (e) => { uploadMany(e.target.files); e.target.value = ''; };
+  $('bulk-zip').onchange = (e) => { uploadZip(e.target.files[0]); e.target.value = ''; };
+  $('gal-search').addEventListener('input', renderGallery);
+})();
+
+checkSession();
+</script>
+<script src="/js/admin-extra.js"></script>
+<script src="/js/admin-packs.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Finalizar pedido | nalv.estudio</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .checkout-wrap{ max-width: 760px; margin: 0 auto; padding: 48px 24px 80px; }
+  .checkout-card{ background:#fff; border:1px solid var(--line); border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-card); margin-bottom:24px; }
+  .checkout-card h2{ font-size:1.25rem; }
+  .form-row{ margin-bottom:16px; }
+  .form-row label{ display:block; font-family: var(--mono); font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; color: var(--ink-soft); margin-bottom:6px; }
+  .form-row input, .form-row textarea, .form-row select{
+    width:100%; padding:11px 12px; border:1px solid var(--line); border-radius: var(--radius-sm); font-family: var(--body); font-size:.95rem;
+  }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:600px){ .form-grid{ grid-template-columns:1fr; } }
+  .delivery-options{ display:flex; gap:12px; }
+  .delivery-options label{
+    flex:1; border:1px solid var(--line); border-radius: var(--radius-sm); padding:12px; display:flex; gap:8px; align-items:center; cursor:pointer; font-family:var(--body); text-transform:none; letter-spacing:0; color: var(--ink);
+  }
+  .delivery-options input{ width:auto; }
+  .delivery-options small{ color: var(--ink-soft); font-size:.74rem; margin-left:4px; }
+  .ship-note{ background: var(--bg); border-left:3px solid var(--accent); padding:10px 12px; font-size:.86rem; color: var(--ink-soft); margin:0 0 16px; border-radius:0 8px 8px 0; }
+  .ship-note b{ color: var(--ink); }
+  .delivery-options{ flex-wrap:wrap; }
+  .summary-line{ display:flex; justify-content:space-between; padding:8px 0; font-size:.92rem; }
+  .summary-line.total{ font-family: var(--mono); font-weight:700; font-size:1.15rem; border-top:1px dashed var(--line); margin-top:8px; padding-top:14px; }
+  .copy-btn{ margin-left:6px; border:1px solid var(--line); background:#fff; border-radius:999px; padding:2px 10px; font-size:.74rem; font-weight:600; cursor:pointer; }
+  .bank-box{ background: var(--paper); border:1px dashed var(--line); border-radius: var(--radius-sm); padding:16px; font-family: var(--mono); font-size:.88rem; line-height:1.7; }
+  #order-confirm{ display:none; text-align:center; }
+  #order-confirm .code{ font-family: var(--mono); font-size:1.6rem; font-weight:700; color: var(--coral); }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+    <a href="/" class="btn btn-ghost" style="color:var(--ink); border-color:var(--line);">← Seguir eligiendo</a>
+  </div>
+</header>
+
+<div class="checkout-wrap">
+  <h1>Finalizar pedido</h1>
+
+  <div id="checkout-form-area">
+    <div class="checkout-card">
+      <h2>Tu pedido</h2>
+      <div id="summary-items"></div>
+      <div id="summary-ship"></div>
+      <div class="summary-line total"><span>Total</span><span>$<span id="summary-total">0</span></span></div>
+    </div>
+
+    <form class="checkout-card" id="order-form">
+      <h2>Tus datos</h2>
+      <p class="ship-note" id="acct-note" style="margin-top:-6px;">¿Tenés cuenta? <a href="/cuenta.html" style="color:var(--accent); font-weight:600;">Ingresá</a> y tus datos y este pedido quedan guardados en “Mi cuenta”. Si no, podés comprar igual.</p>
+      <div class="form-grid">
+        <div class="form-row"><label>Nombre y apellido</label><input required name="customerName" /></div>
+        <div class="form-row"><label>Teléfono / WhatsApp</label><input required name="customerPhone" placeholder="Ej: 221 555 1234" /></div>
+      </div>
+      <div class="form-row"><label>Email (opcional)</label><input type="email" name="customerEmail" /></div>
+
+      <label style="display:block; font-family: var(--mono); font-size:.78rem; text-transform:uppercase; letter-spacing:.05em; color: var(--ink-soft); margin-bottom:8px;">¿Cómo lo recibís?</label>
+      <div class="delivery-options" style="margin-bottom:16px;">
+        <label><input type="radio" name="deliveryMethod" value="retiro" checked /> Retiro en local <small>(gratis)</small></label>
+        <label><input type="radio" name="deliveryMethod" value="correo" /> Envío a todo el país <small>(Correo Argentino)</small></label>
+      </div>
+      <p id="pickup-note" class="ship-note">Retirás en nuestro local: <b id="pickup-addr">calle 45 e/ 145 y 146, La Plata</b>. Te avisamos por WhatsApp cuando el pedido esté listo y coordinamos el horario.</p>
+
+      <div id="ship-area" style="display:none;">
+        <div class="delivery-options" style="margin-bottom:16px;">
+          <label><input type="radio" name="shipType" value="correo_domicilio" checked /> A domicilio</label>
+          <label><input type="radio" name="shipType" value="correo_sucursal" /> A sucursal de Correo Argentino <small>(más barato)</small></label>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label>Provincia</label><select name="province" id="province"><option value="">Elegí tu provincia…</option></select></div>
+          <div class="form-row"><label>Localidad</label><input name="city" autocomplete="address-level2" /></div>
+        </div>
+        <div class="form-grid">
+          <div class="form-row"><label>Código postal</label><input name="postalCode" inputmode="numeric" maxlength="8" autocomplete="postal-code" placeholder="Ej: 1900" /></div>
+          <div class="form-row"><label>DNI de quien recibe</label><input name="dni" inputmode="numeric" maxlength="10" placeholder="Solo números" /></div>
+        </div>
+        <div class="form-row" id="address-row">
+          <label>Calle, número, piso/depto</label>
+          <textarea name="address" rows="2" placeholder="Ej: Calle 7 nº 1234, piso 2 depto B"></textarea>
+        </div>
+        <div class="form-row" id="branch-row" style="display:none;">
+          <label>Sucursal de Correo donde retirás</label>
+          <input name="branch" placeholder="Localidad o dirección de la sucursal" />
+        </div>
+        <p class="ship-note" id="ship-quote-line">Elegí la provincia para ver el costo del envío.</p>
+      </div>
+      <div class="form-row">
+        <label>Notas (opcional)</label>
+        <textarea name="notes" rows="2" placeholder="Aclaraciones sobre tu pedido"></textarea>
+      </div>
+
+      <label class="share-opt mk" id="mk-opt">
+        <input type="checkbox" name="marketing" value="1" />
+        <span>Quiero recibir ofertas y novedades de nalv.estudio por mail o WhatsApp <small>(opcional · te podés dar de baja cuando quieras)</small></span>
+      </label>
+
+      <label class="share-opt" id="share-opt" hidden>
+        <input type="checkbox" name="shareGallery" value="1" />
+        <span>Permito que nalv.estudio publique los diseños de mis stickers en la galería de descargas gratis <small>(opcional · solo si son tuyos; los revisamos antes de publicar y podés pedir que los saquemos cuando quieras)</small></span>
+      </label>
+
+      <button class="btn btn-primary" type="submit" id="submit-btn" style="width:100%; justify-content:center;">Confirmar pedido</button>
+      <p id="form-error" style="color:#C0392B; font-size:.85rem; margin-top:10px; display:none;"></p>
+    </form>
+  </div>
+
+  <div id="order-confirm" class="checkout-card">
+    <h2>¡Pedido recibido! 🎉</h2>
+    <p>Tu número de pedido es</p>
+    <div class="code" id="order-code"></div>
+    <p style="margin-top:18px;">Para que empecemos a producir, transferí el total y enviános el comprobante por WhatsApp con tu número de pedido.</p>
+    <div class="bank-box" id="bank-box" style="text-align:left; margin-top:14px;"></div>
+    <p style="margin-top:14px; font-size:.9rem;">También podés escribirnos a <a id="contact-mail" href="#"></a></p>
+    <a id="whatsapp-link" class="btn btn-primary" style="margin-top:20px;" href="#" target="_blank">Enviar comprobante por WhatsApp</a>
+    <br><br>
+    <a id="track-link" href="/seguimiento.html" class="btn btn-ghost" style="color:var(--ink); border-color:var(--line);">Seguir mi pedido</a>
+    <a href="/" class="btn btn-ghost" style="color:var(--ink); border-color:var(--line);">Volver a la tienda</a>
+  </div>
+</div>
+
+<script src="/js/cart.js"></script>
+<script src="/js/checkout.js"></script>
+<script src="/js/account-nav.js"></script>
+<script src="/js/bot.js"></script>
+</body>
+</html>

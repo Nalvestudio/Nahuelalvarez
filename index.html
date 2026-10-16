@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>nalv.estudio — Armá tus stickers y tu remera personalizada</title>
+<meta name="description" content="Subí tus diseños con su medida y armá tu propia plancha de stickers de 58 × 50 cm con las cantidades que quieras. Vinilo UV, impresión y corte en nalv.estudio." />
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+    <nav class="nav-links">
+      <a href="#crear">Stickers</a>
+      <a href="/remeras.html">Prendas</a>
+      <a href="/stickers.html">Galería</a>
+      <a href="#planchas" id="nav-planchas" hidden>Planchas armadas</a>
+      <a href="#trabajos">Trabajos</a>
+      <a href="#como-funciona">Cómo funciona</a>
+      <a href="#tamanos">Tamaños</a>
+      <a href="#preguntas">Preguntas frecuentes</a>
+    </nav>
+    <button class="cart-btn" id="open-cart">
+      Carrito <span class="cart-count" id="cart-count">0</span>
+    </button>
+  </div>
+</header>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="cloth" x1="0" x2="1" y1="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity=".10"/><stop offset=".5" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#000" stop-opacity=".14"/></linearGradient>
+    <marker id="arr" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="2.2" markerHeight="2.2" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0 L6 3 L0 6 Z" fill="#111112"/></marker>
+    <marker id="arr-acc" viewBox="0 0 6 6" refX="5" refY="3" markerWidth="2.2" markerHeight="2.2" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0 0 L6 3 L0 6 Z" fill="#FF4D00"/></marker>
+  </defs>
+</svg>
+
+<section class="mat hero-v2 has-bgvideo">
+  <div class="bgvideo" id="bgvideo" aria-hidden="true"><video class="bgv a" muted playsinline preload="none"></video><video class="bgv b" muted playsinline preload="none"></video><div class="bgv-veil"></div></div>
+  <div class="wrap">
+    <div class="hero-head hero-human">
+      <span class="hand-note">hecho a pedido, uno por uno
+        <svg viewBox="0 0 60 40" width="54" height="36" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6 C 22 2, 44 10, 46 30"/><path d="M36 24 L46 31 L52 20"/></svg>
+      </span>
+      <h1 class="sticker-title"><span>Lo imaginás.</span><span>Lo medimos.</span><span class="stk">Lo estampamos.</span></h1>
+      <p class="lead">Armás tus stickers y tu remera en pantalla, a escala real: ves cuántos centímetros ocupa tu diseño antes de pedirlo.</p>
+    </div>
+    <div class="doors">
+      <a class="door" href="#crear">
+        <div class="door-top"><span>01</span><span>Stickers</span></div>
+        <div class="door-art" id="art-plancha"></div>
+        <div class="door-bottom">
+          <div><h3>Armá tus stickers</h3><p>Subí tus imágenes y se acomodan solas, con la cantidad que elijas. Te recomendamos tamaños según dónde lo pegues y los acomodamos con 0,5 cm entre stickers.</p></div>
+          <div class="door-price"><small>plancha 58 × 50 cm</small><b id="door-sheet-price">$18.000</b></div>
+        </div>
+        <span class="door-cta">Armar mis stickers <i>→</i></span>
+      </a>
+      <a class="door" href="/remeras.html">
+        <div class="door-top"><span>02</span><span>Prendas</span></div>
+        <div class="door-art" id="art-tee"></div>
+        <div class="door-bottom">
+          <div><h3>Armá tu remera personalizada</h3><p>Remeras, crop top, musculosa y buzo. Elegí talle, subí tu logo (le sacás el fondo en un clic) y ubicalo en cm.</p></div>
+          <div class="door-price"><small>prendas estampadas desde</small><b id="door-garment-price">$13.000</b></div>
+        </div>
+        <span class="door-cta">Armar mi remera <i>→</i></span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<section id="crear">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Armá tus stickers</h2>
+      <p>Una plancha de 58 × 50 cm por $18.000. Subí tus imágenes, elegí la cantidad y se acomodan solas en la plancha. Después cambiás medida y cantidad de cada una, o la recortás para que entren más. ¿Un solo diseño suelto? También podés pedirlo aparte.</p>
+    </div>
+
+    <div class="mode-tabs" id="mode-tabs">
+      <button class="mode-tab active" data-mode="sheet">Armar mis stickers · <span id="tab-sheet-price">$18.000</span></button>
+      <button class="mode-tab" data-mode="single">Sticker suelto</button>
+    </div>
+
+    <!-- ===================== MODO: STICKER SUELTO ===================== -->
+    <div class="configurator" id="single-mode" style="display:none;">
+      <div>
+        <label class="upload-zone" id="upload-zone" for="file-input">
+          <strong>📎 Arrastrá tu imagen acá</strong>
+          <span>o hacé clic para elegir un archivo — PNG, JPG, WEBP o SVG (máx. 10MB)</span>
+          <input type="file" id="file-input" accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+        </label>
+
+        <div id="single-actions" style="display:none; gap:8px; margin-top:10px; flex-wrap:wrap;">
+          <button type="button" class="mini-btn" id="single-change">🔄 Cambiar imagen</button>
+          <button type="button" class="mini-btn" id="single-remove" style="color:#C0392B; border-color:#C0392B;">🗑 Quitar imagen</button>
+        </div>
+        <div class="preview-stage" style="margin-top:16px;">
+          <div class="preview-sticker" id="preview-sticker" style="width:120px;height:120px;">
+            <img id="preview-img" style="display:none" alt="Vista previa" />
+          </div>
+        </div>
+      </div>
+
+      <div class="config-panel">
+        <label class="section-label">Tamaño (usá la regla)</label>
+        <div class="ruler">
+          <div class="ruler-track" id="ruler-track"></div>
+          <input type="range" id="size-range" min="2" max="15" step="0.5" value="5" />
+          <div class="ruler-readout">
+            <span class="big"><span id="size-value">5</span></span><span>cm × cm</span>
+          </div>
+          <div class="size-presets" id="size-presets">
+            <button class="size-chip" data-size="3">3cm · celular</button>
+            <button class="size-chip active" data-size="5">5cm · termo/botella</button>
+            <button class="size-chip" data-size="7">7cm · notebook</button>
+            <button class="size-chip" data-size="10">10cm · auto</button>
+          </div>
+        </div>
+
+        <label class="section-label">Cantidad</label>
+        <div class="qty-row">
+          <div class="qty-stepper">
+            <button type="button" id="qty-minus">−</button>
+            <input type="number" id="qty-input" value="1" min="1" max="500" />
+            <button type="button" id="qty-plus">+</button>
+          </div>
+          <span class="qty-hint">$800 por unidad, de cualquier tamaño. Para muchos stickers conviene la plancha.</span>
+        </div>
+
+        <label class="section-label" for="label-input">Nombre del diseño (opcional)</label>
+        <input class="label-input" id="label-input" type="text" placeholder="Ej: Logo redondo, Frase 'good vibes'…" maxlength="60" />
+
+        <div class="price-box">
+          <div>
+            <div class="label">Precio de este sticker</div>
+            <div class="amount">$<span id="unit-price">—</span> <span class="discount-tag" id="discount-tag" style="display:none"></span></div>
+          </div>
+          <button class="btn btn-dark" id="add-to-cart" disabled>Agregar al carrito</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===================== MODO: PLANCHA 58 x 50 ===================== -->
+    <div class="configurator plancha" id="sheet-mode">
+      <div class="plancha-left">
+        <label class="section-label">1 · Subí tu diseño</label>
+        <label class="upload-zone" id="sheet-upload-zone" for="sheet-file-input" style="min-height:110px;">
+          <strong id="sheet-upload-title">📎 Arrastrá o elegí tus imágenes</strong>
+          <span>Se acomodan solas en tu plancha. PNG, JPG, WEBP o SVG (máx. 10MB). Podés subir varias juntas.</span>
+          <input type="file" id="sheet-file-input" multiple accept="image/png,image/jpeg,image/webp,image/svg+xml" />
+        </label>
+        <div class="cat-toast" id="cat-toast" role="status" aria-live="polite"></div>
+
+        <!-- 📁 Carpeta: stickers recomendados / todos / planchas armadas, con sus nombres (se muestra solo si hay algo cargado) -->
+        <div class="biblio" id="biblio" hidden>
+          <div class="biblio-head"><span>📁 Carpeta de stickers y planchas</span><small>Tocá uno para sumarlo a tu plancha</small></div>
+          <div class="biblio-tabs" id="biblio-tabs"></div>
+          <input type="search" id="biblio-search" placeholder="Buscar por nombre…" aria-label="Buscar en la carpeta" />
+          <div class="biblio-grid" id="biblio-grid"></div>
+        </div>
+
+        <p class="start-note">Cada diseño entra con <b>1 unidad</b> y <b>5 cm de ancho</b>. Después sumás las unidades que quieras y cambiás ancho y alto (o elegís una medida recomendada) en <b>Tus diseños</b>, al lado de la plancha.</p>
+
+        <details class="use-details">
+          <summary>¿Qué medida me conviene? Recomendaciones por uso</summary>
+          <div class="use-chips" id="use-chips"></div>
+          <div class="use-tip" id="use-tip">Elegí dónde lo vas a pegar y te recomendamos la medida.</div>
+        </details>
+      </div>
+
+      <div class="plancha-right">
+        <label class="section-label">Tu plancha · <span id="plancha-dim">58 × 50 cm</span></label>
+        <div class="plancha-board">
+        <div class="plancha-viz">
+        <div id="sheet-nest-wrap">
+          <svg id="sheet-nest-svg" viewBox="0 0 580 500" preserveAspectRatio="xMidYMin meet" role="img" aria-label="Vista previa de tu plancha de stickers"></svg>
+        </div>
+        <div class="sheet-fit-bar-track"><div class="sheet-fit-bar" id="sheet-fit-bar"></div></div>
+        <div id="sheet-fit-status" class="sheet-fit-status">Subí tu primer diseño y se acomoda solo acá.</div>
+        <div class="fill-hint" id="fill-hint"></div>
+        <p class="sheet-note">✂️ Dejamos <strong>0,5 cm</strong> entre stickers y contra el borde. Recortamos solos los márgenes vacíos, y con <strong>Recortar</strong> podés ajustar cada diseño para que entren más.</p>
+
+        </div>
+        <div class="plancha-items">
+          <div class="items-title">Tus diseños <span class="hint-inline">· cantidad, ancho, alto y recorte</span></div>
+          <div id="sheet-draft-list"></div>
+        </div>
+        </div>
+
+        <div class="price-box">
+          <div>
+            <div class="label" id="sheet-price-label">Plancha de 58 × 50 cm</div>
+            <div class="amount">$<span id="sheet-price-display">18.000</span></div>
+          </div>
+          <button class="btn btn-dark" id="add-sheet-to-cart" disabled>Agregar plancha al carrito</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="trabajos" style="border-top:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Trabajos realizados</h2>
+      <p>Stickers y prendas que ya salieron de nuestro taller. Mirá más fotos y videos en nuestras redes.</p>
+    </div>
+    <div class="social-cards">
+      <a class="social-card ig" href="https://www.instagram.com/nalv.estudio/" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg>
+        <div><strong>Instagram</strong><span>@nalv.estudio</span></div><i>Ver perfil</i>
+      </a>
+      <a class="social-card tt" href="https://www.tiktok.com/@nalv.estudio" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true" fill="currentColor"><path d="M16.6 3c.3 2.3 1.7 3.9 3.9 4.1v3.1c-1.4 0-2.7-.4-3.9-1.200v6.100c0 3.300-2.500 5.900-5.800 5.900S5 18.400 5 15.100c0-3.600 3.100-6.200 6.700-5.700v3.200c-1.700-.5-3.400.6-3.400 2.400 0 1.500 1.200 2.600 2.600 2.600 1.600 0 2.600-1.100 2.600-2.800V3z"/></svg>
+        <div><strong>TikTok</strong><span>@nalv.estudio</span></div><i>Ver videos</i>
+      </a>
+    </div>
+    <div class="works-grid" id="works-grid" hidden></div>
+  </div>
+</section>
+
+<section id="planchas" hidden style="background:var(--surface); border-top:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Planchas armadas</h2>
+      <p>Planchas ya diseñadas, listas para pedir: elegí la que te guste y agregala al carrito. El precio depende de la cantidad de stickers que trae.</p>
+    </div>
+    <div class="gal-grid" id="pk-list"></div>
+  </div>
+</section>
+
+<section id="como-funciona" style="background:var(--surface); border-top:1px solid var(--line); border-bottom:1px solid var(--line);">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Cómo funciona</h2>
+      <p>De tu diseño a tu puerta (o a retirar) en 4 pasos.</p>
+    </div>
+    <div class="steps">
+      <div class="step-card"><div class="num">01</div><h3>Subís tu imagen</h3><p>PNG, JPG, WEBP o SVG. Cuanta más resolución, mejor calidad de impresión.</p></div>
+      <div class="step-card"><div class="num">02</div><h3>Elegís tamaño y cantidad</h3><p>Deslizá la regla para el tamaño exacto en cm y sumá cuantos quieras.</p></div>
+      <div class="step-card"><div class="num">03</div><h3>Confirmás el pedido</h3><p>Completás tus datos y elegís retiro o envío. Te llega el número de pedido.</p></div>
+      <div class="step-card"><div class="num">04</div><h3>Pagás por transferencia</h3><p>Te mostramos alias/CBU al confirmar. Con el comprobante, arrancamos a producir.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="tamanos">
+  <div class="wrap">
+    <div class="section-head">
+      <h2>Guía de tamaños</h2>
+      <p>Si no sabés qué medida elegir, esto te ayuda (ancho del sticker):</p>
+    </div>
+    <div class="size-guide" id="size-guide"></div>
+  </div>
+</section>
+
+<section id="preguntas" style="background:var(--surface); border-top:1px solid var(--line);">
+  <div class="wrap" style="max-width:760px;">
+    <div class="section-head"><h2>Preguntas frecuentes</h2></div>
+    <details class="faq-item" open>
+      <summary>¿Qué formatos de imagen aceptan?</summary>
+      <p>PNG, JPG, WEBP y SVG. Recomendamos fondo transparente (PNG) para que el troquelado quede prolijo.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Cómo pago?</summary>
+      <p>Por transferencia bancaria o efectivo. Al confirmar el pedido te mostramos los datos y tu número de pedido para coordinar.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Cuánto tarda la producción?</summary>
+      <p>Depende de la cantidad. Los pedidos chicos los hacemos en 2 o 3 días hábiles y, si son más de 20 prendas, en 5 días hábiles. Se cuenta desde que se acredita el pago o la seña.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Cómo funciona la plancha?</summary>
+      <p>Cada plancha mide 58 × 50 cm y cuesta $18.000. Subís las imágenes que quieras: se acomodan solas, y vos ajustás medida y cantidad de cada una. El sitio los acomoda solo dejando 0,5 cm de separación entre cada uno y te muestra cuánto espacio llevás ocupado. Si no entran todos, se suma otra plancha del mismo precio.</p>
+    </details>
+    <details class="faq-item">
+      <summary>¿Puedo combinar varios diseños distintos en una misma plancha?</summary>
+      <p>Sí, es justamente para eso — subí cada diseño con su medida y cantidad, y entran todos los que quepan en la misma plancha. Si además querés un sticker suelto fuera de la plancha, lo pedís aparte con la otra opción.</p>
+    </details>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div><img class="footer-logo" src="/img/nalv-logo.png" alt="NALV" /><br><strong id="footer-store-name">nalv.estudio</strong><br>Vinilo impreso con tecnología UV, resistente al agua.</div>
+    <div>Hecho a pedido, uno por uno 🖇️<br><a href="https://www.instagram.com/nalv.estudio/" target="_blank" rel="noopener">Instagram @nalv.estudio</a> · <a href="https://www.tiktok.com/@nalv.estudio" target="_blank" rel="noopener">TikTok @nalv.estudio</a><br><a id="footer-wa" href="https://wa.me/5492215730729" target="_blank" rel="noopener">WhatsApp +54 9 221 573-0729</a><br><a id="footer-mail" href="mailto:nalvarezestudio@gmail.com">nalvarezestudio@gmail.com</a><br><a href="/seguimiento.html">Seguir mi pedido</a><br><a href="/admin.html" style="opacity:.55; font-size:.8rem;">Acceso administrador</a> <br><small style="opacity:.5; font-size:.72rem;">Stickers argentinos: diseños de nalv.estudio · íconos Microsoft Fluent Emoji (MIT) · mapas Natural Earth</small> <small id="app-ver" style="opacity:.4; font-size:.7rem;"></small></div>
+  </div>
+</footer>
+
+<!-- Carrito -->
+<div class="overlay" id="overlay"></div>
+<aside class="drawer" id="drawer">
+  <div class="drawer-head">
+    <h3>Tu carrito</h3>
+    <button class="drawer-close" id="close-cart">✕</button>
+  </div>
+  <div class="drawer-body" id="cart-items"></div>
+  <div class="drawer-foot">
+    <div class="total-row"><span>Total</span><span>$<span id="cart-total">0</span></span></div>
+    <a href="/checkout.html" class="btn btn-primary" style="width:100%; justify-content:center;" id="checkout-link">Ir a pagar</a>
+  </div>
+</aside>
+
+<script src="/js/cart.js"></script>
+<script src="/js/calidad.js"></script>
+<script src="/js/cart-ui.js"></script>
+<script src="/js/garments.js"></script>
+<script src="/js/hero.js"></script>
+<script src="/js/app.js"></script>
+<script src="/js/fondo.js"></script>
+<script src="/js/trabajos.js"></script>
+<script src="/js/ruler.js"></script>
+<script src="/js/planchas.js"></script>
+<script src="/js/biblioteca.js"></script>
+<script>fetch("/api/version").then(function(r){return r.json()}).then(function(j){var e=document.getElementById("app-ver");if(e)e.textContent="v"+j.version}).catch(function(){})</script>
+<script src="/js/usar-sticker.js"></script>
+<script src="/js/account-nav.js"></script>
+<script src="/js/bot.js"></script>
+</body>
+</html>

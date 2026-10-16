@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Mi cuenta | nalv.estudio</title>
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<header class="site-header">
+  <div class="wrap">
+    <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+    <a href="/" class="btn btn-ghost" style="color:var(--ink); border-color:var(--line);">← Volver a la tienda</a>
+  </div>
+</header>
+
+<main class="acct-wrap">
+  <!-- Sin sesión -->
+  <div id="guest" hidden>
+    <h1>Mi cuenta</h1>
+    <p style="color:var(--ink-soft); margin-top:-6px;">Creá tu cuenta para ver tus pedidos y planchas, y comprar más rápido con tus datos ya cargados. Comprar sin cuenta también se puede.</p>
+    <div class="acct-card">
+      <div class="acct-tabs" id="gtabs"><button type="button" data-t="login" class="on">Ingresar</button><button type="button" data-t="register">Crear cuenta</button></div>
+
+      <form class="acct-form" id="f-login">
+        <div class="frow"><label class="l">Email</label><input type="email" name="email" required autocomplete="email" /></div>
+        <div class="frow"><label class="l">Contraseña</label><input type="password" name="password" required autocomplete="current-password" /></div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;">Ingresar</button>
+        <p style="margin:12px 0 0; font-size:.86rem;"><button type="button" class="acct-link-btn" id="forgot-btn">Olvidé mi contraseña</button></p>
+        <p class="acct-msg" id="m-login"></p>
+      </form>
+
+      <form class="acct-form" id="f-register" hidden>
+        <div class="grid2">
+          <div class="frow"><label class="l">Nombre y apellido</label><input type="text" name="name" required autocomplete="name" maxlength="80" /></div>
+          <div class="frow"><label class="l">Teléfono / WhatsApp</label><input type="tel" name="phone" autocomplete="tel" placeholder="221 555 1234" /></div>
+        </div>
+        <div class="frow"><label class="l">Email</label><input type="email" name="email" required autocomplete="email" /></div>
+        <div class="frow"><label class="l">Contraseña (mínimo 8 caracteres)</label><input type="password" name="password" required minlength="8" autocomplete="new-password" /></div>
+        <label class="chk"><input type="checkbox" name="marketing" /> <span>Quiero recibir ofertas y novedades de nalv.estudio por mail o WhatsApp <small>(opcional · podés darte de baja cuando quieras)</small></span></label>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;">Crear mi cuenta</button>
+        <p class="acct-msg" id="m-register"></p>
+      </form>
+
+      <form class="acct-form" id="f-reset" hidden>
+        <h2>Crear una contraseña nueva</h2>
+        <div class="frow"><label class="l">Contraseña nueva (mínimo 8)</label><input type="password" name="password" required minlength="8" autocomplete="new-password" /></div>
+        <button class="btn btn-primary" style="width:100%; justify-content:center;">Guardar y entrar</button>
+        <p class="acct-msg" id="m-reset"></p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Con sesión -->
+  <div id="mine" hidden>
+    <div style="display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap;">
+      <h1 style="margin:0;">Hola, <span id="u-first"></span> 👋</h1>
+      <button class="btn btn-ghost" id="logout" style="color:var(--ink); border-color:var(--line);">Cerrar sesión</button>
+    </div>
+    <div class="acct-tabs" id="mtabs" style="margin-top:18px;"><button type="button" data-t="orders" class="on">Mis pedidos</button><button type="button" data-t="profile">Mis datos</button></div>
+
+    <section id="t-orders">
+      <div id="orders-list"></div>
+    </section>
+
+    <section id="t-profile" hidden>
+      <form class="acct-card acct-form" id="f-profile">
+        <h2>Mis datos</h2>
+        <div class="grid2">
+          <div class="frow"><label class="l">Nombre y apellido</label><input type="text" name="name" required maxlength="80" /></div>
+          <div class="frow"><label class="l">Teléfono / WhatsApp</label><input type="tel" name="phone" /></div>
+        </div>
+        <div class="frow"><label class="l">Email</label><input type="email" id="p-email" disabled /></div>
+        <h2 style="margin-top:22px;">Dirección de envío guardada <small style="font-weight:400; color:var(--ink-soft);">(para completar el checkout más rápido)</small></h2>
+        <div class="frow"><label class="l">Calle y número</label><input type="text" name="address" maxlength="120" /></div>
+        <div class="grid2">
+          <div class="frow"><label class="l">Localidad</label><input type="text" name="city" maxlength="60" /></div>
+          <div class="frow"><label class="l">Código postal</label><input type="text" name="postalCode" maxlength="10" /></div>
+        </div>
+        <label class="chk"><input type="checkbox" name="marketing" /> <span>Quiero recibir ofertas y novedades por mail o WhatsApp</span></label>
+        <button class="btn btn-primary">Guardar cambios</button>
+        <p class="acct-msg" id="m-profile"></p>
+      </form>
+
+      <form class="acct-card acct-form" id="f-pass">
+        <h2>Cambiar contraseña</h2>
+        <div class="grid2">
+          <div class="frow"><label class="l">Actual</label><input type="password" name="current" required autocomplete="current-password" /></div>
+          <div class="frow"><label class="l">Nueva (mínimo 8)</label><input type="password" name="next" required minlength="8" autocomplete="new-password" /></div>
+        </div>
+        <button class="btn btn-ghost" style="color:var(--ink); border-color:var(--line-strong);">Cambiar contraseña</button>
+        <p class="acct-msg" id="m-pass"></p>
+      </form>
+
+      <form class="acct-card acct-form" id="f-del">
+        <h2>Borrar mi cuenta</h2>
+        <p style="font-size:.86rem; color:var(--ink-soft); margin-top:-6px;">Se borran tus datos de cuenta y de contacto. Tus pedidos anteriores quedan guardados sin tu nombre de usuario, porque los necesitamos para la contabilidad.</p>
+        <div class="frow"><label class="l">Tu contraseña</label><input type="password" name="password" required autocomplete="current-password" /></div>
+        <button class="btn btn-ghost" style="color:#C0392B; border-color:#C0392B;">Borrar mi cuenta</button>
+        <p class="acct-msg" id="m-del"></p>
+      </form>
+    </section>
+  </div>
+</main>
+
+<script src="/js/account-nav.js"></script>
+<script src="/js/cuenta.js"></script>
+<script src="/js/bot.js"></script>
+</body>
+</html>

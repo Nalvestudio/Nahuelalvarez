@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Seguir mi pedido | nalv.estudio</title>
+<link rel="stylesheet" href="/css/style.css" />
+<style>
+  .trk{ max-width:520px; margin:34px auto; padding:0 16px; }
+  .trk form{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; display:grid; gap:12px; }
+  .trk input{ padding:11px 12px; border:1px solid var(--line-strong); border-radius:10px; font-size:1rem; font-family:inherit; }
+  .trk .res{ background:#fff; border:1px solid var(--line); border-radius:14px; padding:20px; margin-top:16px; }
+  .trk .st{ font-size:1.25rem; font-weight:700; color:#FF4D00; margin:4px 0 12px; }
+  .trk ol{ margin:10px 0 0; padding-left:18px; color:var(--ink-soft); font-size:.88rem; line-height:1.7; }
+  .trk .err{ color:#C0392B; font-size:.9rem; margin:0; }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="wrap">
+  <a href="/" class="brand" aria-label="NALV"><img src="/img/nalv-logo.png" alt="NALV" /></a>
+  <a href="/" class="btn btn-ghost" style="color:var(--ink); border-color:var(--line);">← Volver a la tienda</a>
+</div></header>
+<main class="trk">
+  <h1>Seguir mi pedido</h1>
+  <p style="color:var(--ink-soft); margin-top:-6px;">Ingresá tu número de pedido y el teléfono que usaste al comprar.</p>
+  <form id="f">
+    <input id="code" placeholder="Número de pedido (ej. NALV-0007)" required autocomplete="off" />
+    <input id="phone" type="tel" placeholder="Tu teléfono" required autocomplete="tel" />
+    <button class="btn btn-primary" style="justify-content:center;">Ver estado</button>
+    <p class="err" id="err" hidden></p>
+  </form>
+  <div class="res" id="res" hidden></div>
+</main>
+<script>
+const esc = (t) => String(t == null ? '' : t).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const q = new URLSearchParams(location.search); if (q.get('c')) document.getElementById('code').value = q.get('c');
+try { const p = localStorage.getItem('nalv_phone'); if (p) document.getElementById('phone').value = p; } catch (e) { /* sin storage */ }
+document.getElementById('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const err = document.getElementById('err'), res = document.getElementById('res'); err.hidden = true; res.hidden = true;
+  try {
+    const r = await fetch('/api/track', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code: document.getElementById('code').value, phone: document.getElementById('phone').value }) });
+    const j = await r.json(); if (!r.ok) throw new Error(j.error || 'No se pudo consultar.');
+    const when = (iso) => new Date(iso).toLocaleString('es-AR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+    res.innerHTML = `<small style="color:var(--ink-soft)">Pedido ${esc(j.code)} · ${when(j.created_at)}</small><div class="st">${esc(j.label)}</div>
+      <div>${j.resumen.map((x) => '• ' + esc(x)).join('<br>')}</div>
+      <div style="margin-top:8px;"><b>Total: $${Number(j.total).toLocaleString('es-AR')}</b></div>
+      ${j.history.length ? '<ol>' + j.history.map((h) => `<li>${esc(h.label)} · ${when(h.at)}</li>`).join('') + '</ol>' : ''}`;
+    res.hidden = false;
+  } catch (x) { err.textContent = x.message; err.hidden = false; }
+});
+</script>
+</body>
+</html>
